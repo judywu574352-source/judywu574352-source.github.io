@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>停檢流程圖產生器 - 襄澤專案顧問專業版</title>
+  <style>
+    :root{
+      --bg:#f7f2e9;
+      --panel:#fffaf3;
+      --paper:#ffffff;
+      --line:#e2d2bc;
+      --line2:#d8e0ea;
+      --text:#2b1d12;
+      --muted:#7b6a59;
+      --accent:#9b6332;
+      --accent2:#2f3f56;
+      --light:#efe3d1;
+      --danger:#b4533a;
+      --ok:#0f766e;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(155,99,50,.10), transparent 30%),
+        linear-gradient(180deg,#fbf7ef 0%, var(--bg) 100%);
+    }
+    .app{
+      display:grid;
+      grid-template-columns:660px minmax(0,1fr);
+      height:100vh;
+      align-items:start;
+      overflow:hidden;
+    }
+    .panel{
+      background:rgba(255,250,243,.96);
+      border-right:1px solid var(--line);
+      padding:10px 16px 12px;
+      overflow:auto;
+      height:100vh;
+      align-self:start;
+    }
+    .brand{
+      margin:0 0 8px;
+      padding:6px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#fffdf8;
+      color:var(--accent);
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.08em;
+      text-align:center;
+    }
+    .panel h1{
+      margin:0 0 4px;
+      font-size:22px;
+      letter-spacing:.02em;
+    }
+    .desc{
+      margin:0 0 10px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.45;
+    }
+    .card{
+      background:#fffdf8;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:10px;
+      margin-bottom:10px;
+      box-shadow:0 8px 22px rgba(86,54,27,.06);
+    }
+    .card h2{
+      margin:0 0 8px;
+      font-size:14px;
+    }
+    .hint{
+      margin:0;
+      padding-left:18px;
+      color:#334155;
+      font-size:12px;
+      line-height:1.55;
+    }
+    .hint strong{
+      color:#0f172a;
+    }
+    .row{
+      display:grid;
+      grid-template-columns:96px 1fr;
+      gap:8px;
+      align-items:center;
+      margin-bottom:8px;
+    }
+    label{font-size:13px}
+    input[type="text"], input[type="number"], textarea{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:9px 10px;
+      font-size:14px;
+      background:#fff;
+      font-family: inherit;
+    }
+    textarea{
+      resize: vertical;
+      min-height: 60px;
+      line-height: 1.4;
+    }
+    .btns, .btns3{
+      display:grid;
+      gap:8px;
+    }
+    .btns{grid-template-columns:1fr 1fr}
+    .btns3{grid-template-columns:1fr 1fr 1fr}
+    button{
+      border:none;
+      border-radius:12px;
+      padding:9px 10px;
+      background:var(--accent);
+      color:#fff;
+      font-weight:700;
+      cursor:pointer;
+    }
+    button.secondary{background:var(--accent2)}
+    button.light{background:var(--light); color:#4a2a12}
+    button.danger{background:var(--danger)}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:12.5px;
+    }
+    th,td{
+      border:1px solid var(--line);
+      padding:5px;
+      vertical-align:middle;
+      text-align:center;
+    }
+    th{background:#f8f1e7}
+    th.stop-col{
+      width:62px;
+      min-width:62px;
+      line-height:1.45;
+      white-space:normal;
+      word-break:keep-all;
+      padding:8px 4px;
+    }
+    td.stop-col{
+      width:62px;
+      min-width:62px;
+      padding:5px 4px;
+    }
+    .flowText input{ min-width: 115px; }
+    .noteText{ min-width:300px; width:300px; }
+    .noteText textarea{ min-width: 300px; width:300px; font-size: 12px; min-height:58px; }
+    .viewer{
+      overflow:auto;
+      padding:8px 12px 12px;
+      align-self:start;
+    }
+    .paper{
+      min-width:900px;
+      width:max-content;
+      max-width:none;
+      background:var(--paper);
+      border:1px solid var(--line);
+      border-radius:20px;
+      box-shadow:0 12px 28px rgba(86,54,27,.08);
+      padding:12px;
+    }
+    .toolbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:8px;
+      flex-wrap:wrap;
+    }
+    .setting-strip{
+      display:grid;
+      grid-template-columns:1.5fr 1.25fr repeat(3, .58fr);
+      gap:8px;
+      align-items:end;
+      background:#fffdf8;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:8px;
+      margin-bottom:8px;
+    }
+    .setting-strip .field label{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      margin:0 0 5px;
+      font-weight:700;
+    }
+    .tool-footer{
+      margin:14px 0 0;
+      padding:10px;
+      border-top:1px solid var(--line);
+      color:var(--muted);
+      font-size:12px;
+      text-align:center;
+      letter-spacing:.03em;
+    }
+    #svgWrap{
+      overflow:visible;
+      background:#fff;
+      border:1px dashed #cbd5e1;
+      border-radius:16px;
+      padding:8px;
+      display:inline-block;
+      min-width:100%;
+    }
+    /* SVG 採自然尺寸，不用 100% 硬塞進右欄，避免右側說明被壓縮或凸排 */
+    #flowSvg{
+      display:block;
+      width:auto;
+      max-width:none;
+      height:auto;
+    }
+    .actions{
+      display:flex;
+      gap:4px;
+      flex-direction: column;
+    }
+    .mini{ padding:4px; border-radius:8px; font-size:11px; }
+    @media (max-width: 1100px){
+      .app{grid-template-columns:1fr}
+      .panel{border-right:none; border-bottom:1px solid var(--line); height:auto;}
+      .setting-strip{grid-template-columns:1fr 1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="panel">
+      <div class="brand">襄澤專案顧問工作室</div>
+      <h1>停檢流程圖產生器</h1>
+      <p class="desc">優化版：右側說明支援換行並自動編號，停檢點可直接於表格勾選。</p>
+
+      <div class="card">
+        <h2>使用說明</h2>
+        <ol class="hint">
+          <li><strong>施工停檢點★：</strong>勾選後流程節點會自動轉為菱形，並產生 YES／NO 回檢路徑。</li>
+          <li><strong>職安停檢點※：</strong>勾選後於節點旁標示 ※，可與施工停檢點並列呈現。</li>
+          <li><strong>右側說明欄：</strong>按 Enter 換行後，圖中會自動增加 1、2、3……等項次；可透過「節點間距」調整完整呈現。</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h2>流程資料</h2>
+        <div class="btns3" style="margin-bottom:10px;">
+          <button id="addRowBtn">新增一列</button>
+          <button id="addEndBtn" class="secondary">新增完成列</button>
+          <button id="resetDemoBtn" class="light">載入範例</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:30px;">序</th>
+              <th style="width:150px;">流程文字</th>
+              <th class="stop-col">施工<br>停檢點<br>★</th>
+              <th class="stop-col">職安<br>停檢點<br>※</th>
+              <th style="width:320px;">右側說明 (可換行)</th>
+              <th style="width:58px;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="flowRows"></tbody>
+        </table>
+      </div>
+      <div class="tool-footer">襄澤專案顧問工作室版權所有 ©</div>
+    </aside>
+
+    <main class="viewer">
+      <div class="paper">
+        <div class="toolbar">
+          <div>
+            <h3 style="margin:0;">流程圖預覽</h3>
+          </div>
+          <div class="btns3">
+            <button id="downloadPngBtn" class="secondary">下載 PNG</button>
+            <button id="printBtn">列印 / 存 PDF</button>
+          </div>
+        </div>
+        <div class="setting-strip">
+          <div class="field"><label>流程圖標題</label><input id="chartTitle" type="text" value="材料進場檢驗流程圖"></div>
+          <div class="field"><label>圖號／圖說</label><input id="chartCaption" type="text" value="圖 5-2 材料進場檢驗流程圖"></div>
+          <div class="field"><label>節點寬度</label><input id="nodeWidth" type="number" value="180"></div>
+          <div class="field"><label>節點高度</label><input id="nodeHeight" type="number" value="54"></div>
+          <div class="field"><label>節點間距</label><input id="nodeGap" type="number" value="64"></div>
+        </div>
+        <div id="svgWrap"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const rowsEl = document.getElementById('flowRows');
+    const svgWrap = document.getElementById('svgWrap');
+    const chartTitleEl = document.getElementById('chartTitle');
+    const chartCaptionEl = document.getElementById('chartCaption');
+    const nodeWidthEl = document.getElementById('nodeWidth');
+    const nodeHeightEl = document.getElementById('nodeHeight');
+    const nodeGapEl = document.getElementById('nodeGap');
+
+    let rows = [];
+
+    function defaultRows(){
+      return [
+        { text:'施工前準備', quality:false, safety:false, note:'路基面(級配)平整，浮鬆材料、塵土均應清除，坑洞填平滾壓。\n確認級配粒料基層或底層之圖說規定。\n鋪築機具及滾壓機具檢查。\n人力分配及交通安全設施。' },
+        { text:'運送', quality:false, safety:false, note:'運送時用帆布遮蓋以防降溫。\n車身應先塗一層輕油防止 AC 黏於卡車上。\n遇雨時材料不得使用。\n倒入鋪裝機溫度應在 120°C 以上。' },
+        { text:'材料檢查', quality:true, safety:true, note:'材料溫度符合圖說規定。\n出廠時間、料源潔淨。\n馬歇爾試驗。\n含油量及夯實度檢查' },
+        { text:'完成', quality:false, safety:false, note:'', end:true }
+      ];
+    }
+
+    function renderRows(){
+      rowsEl.innerHTML = '';
+      rows.forEach((row, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td class="flowText"><input type="text" value="${escapeHtml(row.text)}" data-key="text" data-idx="${idx}"></td>
+          <td class="stop-col"><input type="checkbox" ${row.quality ? 'checked' : ''} data-key="quality" data-idx="${idx}"></td>
+          <td class="stop-col"><input type="checkbox" ${row.safety ? 'checked' : ''} data-key="safety" data-idx="${idx}"></td>
+          <td class="noteText"><textarea data-key="note" data-idx="${idx}" placeholder="輸入文字按 Enter 換行">${escapeHtml(row.note || '')}</textarea></td>
+          <td>
+            <div class="actions">
+              <button class="mini light" data-act="up" data-idx="${idx}">↑</button>
+              <button class="mini light" data-act="down" data-idx="${idx}">↓</button>
+              <button class="mini danger" data-act="del" data-idx="${idx}">刪</button>
+            </div>
+          </td>
+        `;
+        rowsEl.appendChild(tr);
+      });
+
+      rowsEl.querySelectorAll('input, textarea').forEach(el => {
+        el.addEventListener('input', handleTableChange);
+      });
+
+      rowsEl.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.idx);
+          const act = btn.dataset.act;
+          if(act === 'up') moveRow(idx, -1);
+          if(act === 'down') moveRow(idx, 1);
+          if(act === 'del') deleteRow(idx);
+        });
+      });
+    }
+
+    function handleTableChange(e){
+      const idx = Number(e.target.dataset.idx);
+      const key = e.target.dataset.key;
+      if(key === 'quality' || key === 'safety') rows[idx][key] = e.target.checked;
+      else rows[idx][key] = e.target.value;
+      renderChart();
+    }
+
+    function moveRow(idx, dir){
+      const newIdx = idx + dir;
+      if(newIdx < 0 || newIdx >= rows.length) return;
+      [rows[idx], rows[newIdx]] = [rows[newIdx], rows[idx]];
+      renderRows(); renderChart();
+    }
+
+    function deleteRow(idx){
+      rows.splice(idx, 1);
+      renderRows(); renderChart();
+    }
+
+    function escapeHtml(str=''){
+      return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#039;"}[m]));
+    }
+
+    function estimateTextWidth(text, fontSize = 14){
+      // 粗估中文字寬，讓菱形可依文字自動放大；避免「材料檢查」跑出形狀外或看起來偏心。
+      const chars = Array.from(String(text || ''));
+      return chars.reduce((sum, ch) => sum + (/[^\x00-\xff]/.test(ch) ? fontSize : fontSize * 0.58), 0);
+    }
+
+    function renderChart(){
+      const title = chartTitleEl.value;
+      const caption = chartCaptionEl.value;
+      const nodeW = Number(nodeWidthEl.value);
+      const nodeH = Number(nodeHeightEl.value);
+      const gap = Number(nodeGapEl.value);
+
+      const centerX = 270;
+      const baseWidth = 1120;
+      const topY = 100;
+      let currentY = topY;
+      const layouts = [];
+
+      rows.forEach((row, i) => {
+        const isDiamond = row.quality && i !== rows.length - 1;
+        const isEnd = i === rows.length - 1;
+        const textW = estimateTextWidth(row.text, 14);
+        let shapeW = nodeW;
+        let shapeH = nodeH;
+
+        if(isDiamond){
+          shapeW = Math.max(nodeW + 72, textW + 116);
+          shapeH = Math.max(nodeH + 34, 78);
+        }
+
+        layouts.push({
+          row, i, isDiamond, isEnd,
+          top: currentY,
+          mid: currentY + shapeH / 2,
+          bottom: currentY + shapeH,
+          shapeW, shapeH
+        });
+        currentY += shapeH + gap;
+      });
+
+      let maxRight = baseWidth;
+      layouts.forEach(item => {
+        const lines = (item.row.note || '').split('\n').filter(l => l.trim() !== '');
+        const noteX = centerX + Math.max(nodeW, item.shapeW) / 2 + 70;
+        lines.forEach(line => {
+          maxRight = Math.max(maxRight, noteX + 34 + estimateTextWidth(line, 14) + 80);
+        });
+      });
+      const width = Math.ceil(maxRight);
+      const svgHeight = Math.max(currentY + 120, 620);
+      let svg = `<svg id="flowSvg" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${svgHeight}" viewBox="0 0 ${width} ${svgHeight}">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#111827" /></marker>
+          <style>
+            .shape{ fill:#fff; stroke:#111827; stroke-width:1.5; }
+            .line{ fill:none; stroke:#111827; stroke-width:1.5; marker-end:url(#arrow); }
+            .returnLine{ fill:none; stroke:#111827; stroke-width:1.5; marker-end:url(#arrow); }
+            .label{ font:13px sans-serif; fill:#111827; }
+            .nodeText{ font:14px sans-serif; fill:#111827; dominant-baseline:middle; }
+            .note{ font:14px sans-serif; fill:#111827; }
+            .title{ font:bold 22px sans-serif; fill:#111827; }
+          </style>
+        </defs>
+        <text x="${width - 24}" y="28" text-anchor="end" font-size="12" fill="#64748b">襄澤專案顧問工作室</text>
+        <text x="${centerX}" y="58" text-anchor="middle" class="title">${escapeHtml(title)}</text>`;
+
+      layouts.forEach((item, idx) => {
+        const { row, isDiamond, isEnd, top, mid, bottom, shapeW, shapeH } = item;
+        const leftX = centerX - shapeW / 2;
+        const rightX = centerX + shapeW / 2;
+
+        if(isEnd){
+          svg += `<ellipse class="shape" cx="${centerX}" cy="${mid}" rx="${shapeW/2}" ry="${shapeH/2}" />`;
+        } else if(isDiamond){
+          svg += `<polygon class="shape" points="${centerX},${top} ${rightX},${mid} ${centerX},${bottom} ${leftX},${mid}" />`;
+        } else {
+          svg += `<rect class="shape" x="${leftX}" y="${top}" width="${shapeW}" height="${shapeH}" />`;
+        }
+
+        let syms = [];
+        if(row.quality) syms.push('★');
+        if(row.safety) syms.push('※');
+        syms.forEach((sym, si) => {
+          svg += `<text x="${rightX + 14 + si*22}" y="${mid + 5}" class="label" font-weight="bold">${sym}</text>`;
+        });
+
+        svg += `<text x="${centerX}" y="${mid}" text-anchor="middle" class="nodeText">${escapeHtml(row.text)}</text>`;
+
+        if(row.note){
+          const lines = row.note.split('\n').filter(l => l.trim() !== '');
+          const noteX = centerX + Math.max(nodeW, shapeW) / 2 + 70;
+          const noteLineHeight = 22;
+          const totalNoteH = lines.length * noteLineHeight;
+          const noteStartY = mid - (totalNoteH / 2) + 15;
+
+          lines.forEach((line, li) => {
+            svg += `<text x="${noteX}" y="${noteStartY + li * noteLineHeight}" class="note">${li + 1}. ${escapeHtml(line)}</text>`;
+          });
+        }
+
+        if(idx < layouts.length - 1){
+          const nextTop = layouts[idx + 1].top;
+          svg += `<path class="line" d="M ${centerX} ${bottom} L ${centerX} ${nextTop - 5}" />`;
+
+          if(isDiamond){
+            svg += `<text x="${centerX + 14}" y="${bottom + 18}" class="label">YES</text>`;
+            const returnX = leftX - 58;
+            const returnY = top - Math.max(28, gap * 0.45);
+            svg += `<path class="returnLine" d="M ${leftX} ${mid} L ${returnX} ${mid} L ${returnX} ${returnY} L ${centerX} ${returnY} L ${centerX} ${top - 5}" />`;
+            svg += `<text x="${returnX - 26}" y="${mid - 8}" class="label">NO</text>`;
+          }
+        }
+      });
+
+      const captionY = layouts.length ? layouts[layouts.length - 1].bottom + 42 : currentY;
+      svg += `<text x="${centerX}" y="${captionY}" text-anchor="middle" font-size="14">${escapeHtml(caption)}</text></svg>`;
+      svgWrap.innerHTML = svg;
+    }
+
+    function downloadPng(){
+      const svg = document.getElementById('flowSvg');
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const canvas = document.createElement('canvas');
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = svg.clientWidth * 2;
+        canvas.height = svg.clientHeight * 2;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = "white"; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.scale(2,2); ctx.drawImage(img, 0, 0);
+        const a = document.createElement('a'); a.download = 'flowchart.png'; a.href = canvas.toDataURL(); a.click();
+      };
+      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+    }
+
+    document.getElementById('addRowBtn').addEventListener('click', () => { rows.push({text:'新步驟', quality:false, safety:false, note:''}); renderRows(); renderChart(); });
+    document.getElementById('addEndBtn').addEventListener('click', () => { rows.push({text:'完成', quality:false, safety:false, note:'', end:true}); renderRows(); renderChart(); });
+    document.getElementById('resetDemoBtn').addEventListener('click', () => { rows = defaultRows(); renderRows(); renderChart(); });
+    document.getElementById('printBtn').addEventListener('click', () => window.print());
+    [chartTitleEl, chartCaptionEl, nodeWidthEl, nodeHeightEl, nodeGapEl].forEach(el => el.addEventListener('input', renderChart));
+
+    rows = defaultRows(); renderRows(); renderChart();
+  </script>
+</body>
+</html>
