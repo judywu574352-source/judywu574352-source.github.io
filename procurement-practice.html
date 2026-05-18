@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>政府採購法學習系統</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+:root{
+  --navy:#1B3F72;--navy-d:#122C52;--navy-l:#2A5298;--navy-xl:#3562B8;
+  --blue:#2E6BE6;--blue-l:#5B8FF9;--blue-bg:#EBF1FD;
+  --green:#18A058;--green-bg:#E6F7EE;
+  --red:#E54545;--red-bg:#FEF0F0;
+  --amber:#F0A500;--amber-bg:#FFF7E6;
+  --text:#1A1A2E;--text-2:#5A6070;--text-3:#9AA0AD;
+  --border:#E2E6EC;--surface:#F4F6F9;--white:#fff;
+  --sidebar-w:220px;--radius:10px;--radius-sm:7px;
+  --shadow:0 2px 12px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Noto Sans TC',sans-serif;background:var(--surface);color:var(--text);font-size:14px}
+
+/* ── LAYOUT ── */
+.layout{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);background:linear-gradient(180deg,var(--navy-d) 0%,var(--navy) 100%);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.sidebar-brand{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+.brand-title{color:#fff;font-size:15px;font-weight:900;letter-spacing:-.3px;line-height:1.3}
+.brand-sub{color:rgba(255,255,255,.45);font-size:11px;margin-top:3px}
+.sidebar-nav{flex:1;padding:10px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.6);font-size:13px;font-weight:500;transition:all .15s;border:none;background:none;font-family:inherit;text-align:left;width:100%;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(255,255,255,.15);color:#fff;font-weight:700}
+.nav-item svg{width:17px;height:17px;flex-shrink:0;stroke-width:1.8}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-weight:700}
+.sidebar-footer{padding:14px 14px;border-top:1px solid rgba(255,255,255,.1)}
+.sidebar-version{color:rgba(255,255,255,.3);font-size:10px;line-height:1.8}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;height:54px;display:flex;align-items:center;gap:16px;flex-shrink:0}
+.topbar-title{font-size:16px;font-weight:900;color:var(--text)}
+.topbar-sub{font-size:12px;color:var(--text-3);margin-left:2px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.stat-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;background:var(--surface);border:1px solid var(--border);font-size:12px;color:var(--text-2)}
+.stat-pill strong{color:var(--navy);font-weight:700}
+
+.content{flex:1;overflow-y:auto;padding:20px 24px}
+
+/* ── PAGE ── */
+.page{display:none}.page.active{display:block}
+
+/* ── LAW PAGE ── */
+.law-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--border);border-radius:99px;padding:8px 16px;min-width:280px;transition:border-color .2s}
+.search-box:focus-within{border-color:var(--blue)}
+.search-box input{border:none;background:transparent;font-size:13px;font-family:inherit;color:var(--text);width:220px;outline:none}
+.search-box input::placeholder{color:var(--text-3)}
+.search-box svg{width:15px;height:15px;color:var(--text-3);flex-shrink:0}
+.chip-row{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:5px 12px;border:1.5px solid var(--border);border-radius:99px;font-size:12px;cursor:pointer;background:var(--white);color:var(--text-2);font-family:inherit;transition:all .15s;white-space:nowrap}
+.chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.chip:hover:not(.active){border-color:var(--blue);color:var(--blue)}
+
+.law-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:10px}
+.art-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .2s,box-shadow .2s;cursor:pointer}
+.art-card:hover{border-color:var(--blue-l);box-shadow:var(--shadow)}
+.art-card-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.art-num-badge{background:var(--navy);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;white-space:nowrap;flex-shrink:0}
+.art-info{flex:1;min-width:0}
+.art-title-sm{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.art-snip{font-size:11px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.art-card-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.fav-btn{background:none;border:none;cursor:pointer;font-size:16px;padding:2px;line-height:1;transition:transform .15s}
+.fav-btn:hover{transform:scale(1.25)}
+.chv{width:14px;height:14px;color:var(--text-3);transition:transform .2s;flex-shrink:0}
+.chv.open{transform:rotate(180deg)}
+.art-card-body{display:none;padding:0 14px 14px;border-top:1px solid var(--border)}
+.art-card-body.open{display:block}
+.ch-tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--blue-bg);color:var(--navy);margin:10px 0 6px}
+.art-full-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px}
+.art-text{font-size:13px;color:var(--text-2);line-height:1.85;white-space:pre-line}
+.sub-list{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.sub-item{padding:5px 10px;background:var(--surface);border-radius:var(--radius-sm);font-size:12px;color:var(--text-2);border-left:2px solid var(--blue-l)}
+.empty-state{text-align:center;padding:3rem;color:var(--text-3);font-size:13px;grid-column:1/-1}
+
+/* ── EXAM PAGE ── */
+.exam-layout{display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start}
+.exam-panel{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.exam-panel-hdr{background:linear-gradient(135deg,var(--navy-d),var(--navy-l));padding:20px}
+.exam-panel-title{color:#fff;font-size:15px;font-weight:900;margin-bottom:4px}
+.exam-panel-sub{color:rgba(255,255,255,.6);font-size:11px;margin-bottom:16px}
+.spec-rows{display:flex;flex-direction:column;gap:6px}
+.spec-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(255,255,255,.1);border-radius:7px}
+.spec-row-label{color:rgba(255,255,255,.7);font-size:12px}
+.spec-row-val{color:#fff;font-size:13px;font-weight:700}
+.exam-panel-body{padding:16px}
+.section-label{font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.mode-options{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+.mode-opt{display:flex;align-items:center;gap-12px;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all .15s;position:relative}
+.mode-opt.active{border-color:var(--blue);background:var(--blue-bg)}
+.mode-opt-radio{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;transition:all .15s;margin-right:10px}
+.mode-opt.active .mode-opt-radio{border-color:var(--blue);background:var(--blue)}
+.mode-opt-info{flex:1}
+.mode-opt-title{font-size:13px;font-weight:700;color:var(--text)}
+.mode-opt.active .mode-opt-title{color:var(--blue)}
+.mode-opt-sub{font-size:11px;color:var(--text-3);margin-top:2px}
+.mode-opt-badge{font-size:13px;font-weight:900;color:var(--text-3)}
+.mode-opt.active .mode-opt-badge{color:var(--blue)}
+.notice-box{background:var(--surface);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--text-2);line-height:1.7;margin-bottom:14px;border-left:2px solid var(--amber)}
+.btn-primary{width:100%;padding:13px;background:var(--navy);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s}
+.btn-primary:hover{background:var(--navy-l)}
+.btn-secondary{padding:10px 16px;background:var(--white);color:var(--text-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;cursor:pointer;transition:all .15s}
+.btn-secondary:hover{border-color:var(--red);color:var(--red)}
+
+/* running exam */
+.exam-run-area{}
+.exam-run-topbar{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:16px}
+.exam-prog-wrap{flex:1}
+.exam-prog-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:5px}
+.exam-prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--blue-l));border-radius:3px;transition:width .3s}
+.exam-prog-txt{font-size:12px;color:var(--text-3)}
+.exam-score-box{text-align:right}
+.exam-score-num{font-size:20px;font-weight:900;color:var(--navy)}
+.exam-score-lbl{font-size:11px;color:var(--text-3)}
+.exam-actions{display:flex;gap:8px}
+.section-hdr-bar{display:flex;align-items:center;gap:8px;padding:10px 0 8px;border-bottom:1px solid var(--border);margin-bottom:10px}
+.sc-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px}
+.sc-pill.sc1{background:#DBEAFE;color:#1E40AF}
+.sc-pill.sc2{background:#DCFCE7;color:#166534}
+.sc-pill.sc3{background:#FEF9C3;color:#854D0E}
+.section-hdr-name{font-size:13px;font-weight:700;color:var(--text)}
+.type-note{font-size:11px;color:var(--text-3);margin-left:auto}
+.q-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;transition:border-color .2s}
+.q-meta{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.q-idx{font-size:11px;font-weight:700;color:var(--text-3);background:var(--surface);border-radius:4px;padding:2px 8px}
+.q-pts-tag{font-size:11px;color:var(--blue);font-weight:700;background:var(--blue-bg);border-radius:4px;padding:2px 8px}
+.q-type-tag{font-size:11px;color:var(--text-3);margin-left:auto}
+.q-text{font-size:14px;font-weight:700;color:var(--text);line-height:1.65;margin-bottom:12px}
+.q-opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.q-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--text-2);background:var(--white);text-align:left;font-family:inherit;transition:all .12s;width:100%}
+.q-opt-ltr{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;transition:all .12s}
+.q-opt:hover:not(:disabled){border-color:var(--blue-l);background:var(--blue-bg)}
+.q-opt:hover:not(:disabled) .q-opt-ltr{border-color:var(--blue);color:var(--blue)}
+.q-opt.sel{border-color:var(--blue);background:var(--blue-bg)}
+.q-opt.sel .q-opt-ltr{background:var(--blue);border-color:var(--blue);color:#fff}
+.q-opt.correct{border-color:var(--green);background:var(--green-bg)}
+.q-opt.correct .q-opt-ltr{background:var(--green);border-color:var(--green);color:#fff}
+.q-opt.wrong{border-color:var(--red);background:var(--red-bg)}
+.q-opt.wrong .q-opt-ltr{background:var(--red);border-color:var(--red);color:#fff}
+.q-opt:disabled{cursor:default}
+.tf-row{display:flex;gap:8px}
+.tf-btn{flex:1;padding:11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:14px;font-family:inherit;background:var(--white);color:var(--text-2);font-weight:700;transition:all .12s;text-align:center}
+.tf-btn:hover:not(:disabled){border-color:var(--blue-l);background:var(--blue-bg);color:var(--blue)}
+.tf-btn.sel{border-color:var(--blue);background:var(--blue-bg);color:var(--blue)}
+.tf-btn.correct{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+.tf-btn.wrong{border-color:var(--red);background:var(--red-bg);color:var(--red)}
+.tf-btn:disabled{cursor:default}
+.q-ref{display:none;margin-top:10px;padding:10px 12px;background:var(--surface);border-radius:var(--radius-sm);font-size:12px;color:var(--text-2);line-height:1.7;border-left:3px solid var(--blue)}
+.q-ref.show{display:block}
+.ref-link{color:var(--blue);cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:4px;margin-top:4px;font-size:12px}
+
+/* result */
+.result-layout{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+.result-hero-card{background:linear-gradient(135deg,var(--navy-d),var(--navy-l));border-radius:var(--radius);padding:24px;text-align:center}
+.result-circle-wrap{display:flex;justify-content:center;margin-bottom:16px}
+.rc{width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+.rc svg{position:absolute;top:0;left:0;width:150px;height:150px;transform:rotate(-90deg)}
+.rc-bg{stroke:rgba(255,255,255,.15);fill:none;stroke-width:10}
+.rc-fill{stroke:#22C55E;fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .9s ease}
+.rc-fill.fail{stroke:#F87171}
+.rc-score{color:#fff;font-size:28px;font-weight:900;line-height:1;position:relative;z-index:1}
+.rc-pct{color:rgba(255,255,255,.7);font-size:13px;position:relative;z-index:1;margin-top:2px}
+.verdict-pill{display:inline-block;padding:5px 16px;border-radius:99px;font-size:14px;font-weight:700;margin-top:8px}
+.verdict-pill.pass{background:#22C55E;color:#fff}
+.verdict-pill.fail{background:#F87171;color:#fff}
+.result-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.rst{background:rgba(255,255,255,.12);border-radius:8px;padding:10px 6px;text-align:center}
+.rst-val{color:#fff;font-size:18px;font-weight:900}
+.rst-lbl{color:rgba(255,255,255,.55);font-size:10px;margin-top:2px}
+.sec-score-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px}
+.sec-score-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.sec-score-val{font-size:16px;font-weight:900}
+.sec-score-val.zero{color:var(--red)}
+.pbar{height:7px;border-radius:4px;background:var(--border);overflow:hidden}
+.pbar-fill{height:100%;border-radius:4px;transition:width .6s}
+.pbar-pass{background:var(--green)}.pbar-fail{background:var(--red)}
+.zero-warn{display:flex;align-items:center;gap:6px;background:var(--red-bg);border-radius:var(--radius-sm);padding:6px 10px;margin-top:8px;font-size:12px;color:var(--red);font-weight:700}
+.review-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:8px}
+.review-status{font-size:12px;font-weight:700;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.review-status.ok{color:var(--green)}.review-status.ng{color:var(--red)}
+.review-q{font-size:13px;font-weight:700;color:var(--text);line-height:1.6;margin-bottom:7px}
+.review-ans{font-size:12px;color:var(--text-2);margin-bottom:6px}
+.review-ref{padding:8px 10px;background:var(--surface);border-radius:var(--radius-sm);font-size:12px;color:var(--text-2);line-height:1.65;border-left:2px solid var(--blue)}
+
+/* ── WRONG BOOK ── */
+.wrong-layout{display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start}
+.wrong-panel{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px}
+.wrong-panel-title{font-size:14px;font-weight:900;color:var(--text);margin-bottom:12px}
+.wb-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.wb-stat{background:var(--surface);border-radius:var(--radius-sm);padding:10px 8px;text-align:center}
+.wb-stat-val{font-size:20px;font-weight:900;color:var(--text)}
+.wb-stat-val.blue{color:var(--blue)}.wb-stat-val.red{color:var(--red)}.wb-stat-val.green{color:var(--green)}
+.wb-stat-lbl{font-size:10px;color:var(--text-3);margin-top:2px}
+.wb-filter-list{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.wb-filter-btn{display:flex;align-items:center;gap-8px;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;background:var(--white);font-size:13px;color:var(--text-2);font-family:inherit;text-align:left;transition:all .15s;gap:8px}
+.wb-filter-btn.active{border-color:var(--navy);background:var(--navy);color:#fff}
+.wb-filter-btn:hover:not(.active){border-color:var(--blue);color:var(--blue)}
+.wb-qty-label{font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:8px}
+.wb-qty-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.wb-qty-btn{padding:8px 4px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;background:var(--white);font-size:13px;font-weight:700;color:var(--text-2);font-family:inherit;text-align:center;transition:all .15s}
+.wb-qty-btn.active{border-color:var(--navy);background:var(--navy);color:#fff}
+.wb-qty-btn:hover:not(.active){border-color:var(--blue);color:var(--blue)}
+
+.wq-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:8px}
+.wq-card.mastered{border-color:var(--green);opacity:.7}
+.wq-card.important{border-color:var(--amber)}
+.wq-meta-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.wq-err-tag{font-size:11px;color:var(--red);background:var(--red-bg);padding:2px 7px;border-radius:4px;font-weight:700}
+.wq-star-btn{margin-left:auto;background:none;border:none;cursor:pointer;font-size:17px;padding:0 2px;line-height:1}
+.wq-q{font-size:13px;font-weight:700;color:var(--text);line-height:1.6;margin-bottom:6px}
+.wq-correct-ans{font-size:12px;color:var(--text-2);margin-bottom:4px}
+.wq-correct-txt{color:var(--green);font-weight:700}
+.mastered-tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--green);background:var(--green-bg);padding:3px 8px;border-radius:99px;font-weight:700}
+.wb-empty{text-align:center;padding:3rem;color:var(--text-3);font-size:13px;line-height:2}
+
+/* ── FAV PAGE ── */
+.fav-layout{display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:start}
+.recent-panel{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px}
+.recent-panel-title{font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.recent-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;transition:all .15s;border:1px solid transparent}
+.recent-item:hover{background:var(--blue-bg);border-color:var(--blue-l)}
+.recent-item-num{background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;flex-shrink:0}
+.recent-item-title{font-size:12px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── UPDATE PAGE ── */
+.upd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:12px}
+.upd-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px}
+.upd-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.upd-date{font-size:11px;color:var(--text-3)}
+.upd-new-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;background:var(--red-bg);color:var(--red)}
+.upd-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px}
+.upd-desc{font-size:12px;color:var(--text-2);line-height:1.7;margin-bottom:10px}
+.upd-link{font-size:12px;color:var(--blue);font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.upd-link:hover{text-decoration:underline}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal-box{background:var(--white);border-radius:14px;padding:28px;max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:popIn .2s ease}
+@keyframes popIn{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-icon{font-size:40px;margin-bottom:10px}
+.modal-title{font-size:17px;font-weight:900;margin-bottom:6px}
+.modal-desc{font-size:13px;color:var(--text-2);line-height:1.7;margin-bottom:20px}
+.modal-btns{display:flex;gap:10px}
+.modal-cancel{flex:1;padding:12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--white);color:var(--text-2);font-size:13px;font-family:inherit;cursor:pointer}
+.modal-confirm{flex:2;padding:12px;background:var(--navy);color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer}
+
+/* ── UTILS ── */
+.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}
+.section-title{font-size:15px;font-weight:900;color:var(--text);margin-bottom:14px}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ═══ SIDEBAR ═══ -->
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-title">政府採購法<br>學習系統</div>
+    <div class="brand-sub">Government Procurement Act</div>
+  </div>
+  <div class="sidebar-nav">
+    <button class="nav-item active" onclick="showPage('law')" id="nb-law">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      條文查詢
+    </button>
+    <button class="nav-item" onclick="showPage('quiz')" id="nb-quiz">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      模擬考試
+    </button>
+    <button class="nav-item" onclick="showPage('wrong')" id="nb-wrong">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      錯題複習
+      <span class="nav-badge" id="wrong-badge" style="display:none">0</span>
+    </button>
+    <button class="nav-item" onclick="showPage('fav')" id="nb-fav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      收藏條文
+    </button>
+    <button class="nav-item" onclick="showPage('update')" id="nb-update">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      更新資訊
+    </button>
+  </div>
+  <div class="sidebar-footer">
+    <div class="sidebar-version">政府採購法（民國108年修正）<br>完整 114 條 · 正式考試題庫規格<br>v3.0 Desktop Edition</div>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35);font-size:10px;line-height:1.7">襄澤專案顧問工作室<br>版權所有 © 2025</div>
+  </div>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <span class="topbar-title" id="topbar-title">條文查詢</span>
+      <span class="topbar-sub" id="topbar-sub">共 114 條</span>
+    </div>
+    <div class="topbar-right">
+      <div class="stat-pill">收藏 <strong id="fav-count">0</strong> 條</div>
+      <div class="stat-pill">錯題 <strong id="wrong-count" style="color:var(--red)">0</strong> 題</div>
+      <div class="stat-pill">掌握 <strong id="mastered-count" style="color:var(--green)">0</strong> 題</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ 條文查詢 ══ -->
+    <div class="page active" id="page-law">
+      <div class="law-toolbar">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="law-search" placeholder="搜尋條文號碼或關鍵字…" oninput="filterArts()">
+        </div>
+        <div class="chip-row" id="ch-filters">
+          <button class="chip active" onclick="setChapter(this,'全部')">全部</button>
+          <button class="chip" onclick="setChapter(this,'第一章')">第一章 總則</button>
+          <button class="chip" onclick="setChapter(this,'第二章')">第二章 招標</button>
+          <button class="chip" onclick="setChapter(this,'第三章')">第三章 決標</button>
+          <button class="chip" onclick="setChapter(this,'第四章')">第四章 履約</button>
+          <button class="chip" onclick="setChapter(this,'第五章')">第五章 驗收</button>
+          <button class="chip" onclick="setChapter(this,'第六章')">第六章 爭議</button>
+          <button class="chip" onclick="setChapter(this,'第七章')">第七章 廠商資格</button>
+          <button class="chip" onclick="setChapter(this,'第八章')">第八章 罰則</button>
+          <button class="chip" onclick="setChapter(this,'第九章')">第九章 附則</button>
+        </div>
+      </div>
+      <div class="law-grid" id="art-list"></div>
+    </div>
+
+    <!-- ══ 模擬考試 ══ -->
+    <div class="page" id="page-quiz">
+      <div id="q-start">
+        <div class="exam-layout">
+          <div>
+            <div class="exam-panel">
+              <div class="exam-panel-hdr">
+                <div class="exam-panel-title">採購專業人員基礎測驗</div>
+                <div class="exam-panel-sub">模擬正式考試規格</div>
+                <div class="spec-rows">
+                  <div class="spec-row"><span class="spec-row-label">第一科 採購法規</span><span class="spec-row-val">130 分</span></div>
+                  <div class="spec-row"><span class="spec-row-label">第二科 採購實務</span><span class="spec-row-val">130 分</span></div>
+                  <div class="spec-row"><span class="spec-row-label">第三科 履約爭議</span><span class="spec-row-val">70 分</span></div>
+                  <div class="spec-row"><span class="spec-row-label">總滿分 / 及格</span><span class="spec-row-val">330 / 231 分</span></div>
+                </div>
+              </div>
+              <div class="exam-panel-body">
+                <div class="section-label">選擇練習題量</div>
+                <div class="mode-options">
+                  <div class="mode-opt" onclick="setMode(this,'quick')">
+                    <div class="mode-opt-radio"></div>
+                    <div class="mode-opt-info"><div class="mode-opt-title">快速測驗</div><div class="mode-opt-sub">按比例各科抽題</div></div>
+                    <span class="mode-opt-badge">30題</span>
+                  </div>
+                  <div class="mode-opt active" onclick="setMode(this,'half')">
+                    <div class="mode-opt-radio"></div>
+                    <div class="mode-opt-info"><div class="mode-opt-title">延伸練習</div><div class="mode-opt-sub">約半場考試量</div></div>
+                    <span class="mode-opt-badge">48題</span>
+                  </div>
+                  <div class="mode-opt" onclick="setMode(this,'full')">
+                    <div class="mode-opt-radio"></div>
+                    <div class="mode-opt-info"><div class="mode-opt-title">完整模擬</div><div class="mode-opt-sub">最接近正式考試</div></div>
+                    <span class="mode-opt-badge">96題</span>
+                  </div>
+                </div>
+                <div class="notice-box">⚠️ 各科不得零分，否則即使總分達標仍判定不合格</div>
+                <button class="btn-primary" onclick="startExam()">開始模擬考試 →</button>
+              </div>
+            </div>
+          </div>
+          <div style="color:var(--text-3);font-size:13px;padding-top:20px;line-height:2">
+            <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px">考試說明</div>
+            <div style="background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;font-size:13px;color:var(--text-2);line-height:1.9">
+              📋 <strong>題型</strong>：是非題（每題 2 分）＋ 選擇題（每題 5 分）<br>
+              📊 <strong>配分</strong>：採購法規 130 分 / 採購實務 130 分 / 履約爭議 70 分<br>
+              ✅ <strong>及格條件</strong>：總分 231 分以上（70%），且各科不得零分<br>
+              🔗 <strong>答題後</strong>：每題均顯示條文依據，點擊可跳至條文查詢頁<br>
+              📚 <strong>錯題記錄</strong>：答錯的題目自動加入錯題複習，追蹤學習進度
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="q-exam" style="display:none">
+        <div class="exam-run-topbar">
+          <div class="exam-prog-wrap">
+            <div class="exam-prog-bar"><div class="exam-prog-fill" id="ep-fill" style="width:0%"></div></div>
+            <div class="exam-prog-txt" id="ep-txt">作答進度 0 / 0 題</div>
+          </div>
+          <div class="exam-score-box">
+            <div class="exam-score-num" id="escore-num">0 / 0</div>
+            <div class="exam-score-lbl">目前得分 / 滿分</div>
+          </div>
+          <div class="exam-actions">
+            <button class="btn-secondary" onclick="backToStart()">放棄重來</button>
+            <button class="btn-primary" style="width:auto;padding:10px 20px" onclick="submitExam()">交卷查看成績</button>
+          </div>
+        </div>
+        <div id="exam-qs"></div>
+      </div>
+
+      <div id="q-result" style="display:none">
+        <div class="result-layout">
+          <div>
+            <div class="result-hero-card">
+              <div class="result-circle-wrap">
+                <div class="rc">
+                  <svg viewBox="0 0 150 150">
+                    <circle class="rc-bg" cx="75" cy="75" r="62"/>
+                    <circle class="rc-fill" id="rc-fill" cx="75" cy="75" r="62" stroke-dasharray="389.6" stroke-dashoffset="389.6"/>
+                  </svg>
+                  <div class="rc-score" id="rb-score">0/0</div>
+                  <div class="rc-pct" id="rb-pct">0%</div>
+                </div>
+              </div>
+              <div class="verdict-pill pass" id="rv-pill">及格 ✓</div>
+              <div class="result-stats-grid" id="rb-stats"></div>
+            </div>
+            <div class="mt12">
+              <div class="section-label" style="margin-bottom:8px">各科成績</div>
+              <div id="rsecs"></div>
+            </div>
+            <div class="mt12">
+              <button class="btn-primary" onclick="backToStart()">再考一次</button>
+            </div>
+          </div>
+          <div>
+            <div class="section-label" style="margin-bottom:8px">逐題解析</div>
+            <div id="rreview"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 錯題複習 ══ -->
+    <div class="page" id="page-wrong">
+      <div class="wrong-layout">
+        <div>
+          <div class="wrong-panel">
+            <div class="wrong-panel-title">錯題管理</div>
+            <div class="wb-stat-grid" id="wb-stats-grid"></div>
+            <div class="section-label" style="margin-bottom:8px">篩選分類</div>
+            <div class="wb-filter-list">
+              <button class="wb-filter-btn active" onclick="setWbTab(this,'all')" id="wf-all">📚 全部 <span id="wt-all-n"></span></button>
+              <button class="wb-filter-btn" onclick="setWbTab(this,'unmastered')" id="wf-unmastered">❌ 未掌握 <span id="wt-um-n"></span></button>
+              <button class="wb-filter-btn" onclick="setWbTab(this,'mastered')" id="wf-mastered">✅ 已掌握 <span id="wt-m-n"></span></button>
+              <button class="wb-filter-btn" onclick="setWbTab(this,'important')" id="wf-important">⭐ 重要 <span id="wt-imp-n"></span></button>
+            </div>
+            <div style="margin-top:14px">
+              <div class="wb-qty-label">選擇練習題量</div>
+              <div class="wb-qty-grid">
+                <button class="wb-qty-btn active" onclick="setWbQty(this,10)">10<br><span style="font-size:10px;font-weight:400">題</span></button>
+                <button class="wb-qty-btn" onclick="setWbQty(this,20)">20<br><span style="font-size:10px;font-weight:400">題</span></button>
+                <button class="wb-qty-btn" onclick="setWbQty(this,0)" id="wb-qty-all-btn"><span id="wb-qty-all-n">—</span><br><span style="font-size:10px;font-weight:400">全部</span></button>
+              </div>
+              <button class="btn-primary mt12" onclick="startWbExam()">開始練習</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="section-label" style="margin-bottom:8px">題目列表</div>
+          <div id="wb-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 收藏 ══ -->
+    <div class="page" id="page-fav">
+      <div class="fav-layout">
+        <div>
+          <div class="recent-panel">
+            <div class="recent-panel-title">最近開啟</div>
+            <div id="fav-recent"></div>
+          </div>
+        </div>
+        <div>
+          <div class="law-toolbar" style="margin-bottom:12px">
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="搜尋收藏條文…" oninput="filterFav(this.value)">
+            </div>
+            <span style="font-size:12px;color:var(--text-3)">共 <strong id="fav-count-label">0</strong> 條收藏</span>
+          </div>
+          <div class="law-grid" id="fav-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 更新資訊 ══ -->
+    <div class="page" id="page-update">
+      <div class="upd-grid" id="upd-list"></div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- MASTERED MODAL -->
+<div class="modal-bg" id="mastered-modal">
+  <div class="modal-box">
+    <div class="modal-icon">🎉</div>
+    <div class="modal-title">恭喜！</div>
+    <div class="modal-desc" id="modal-desc"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeMasteredModal()">取消</button>
+      <button class="modal-confirm" id="modal-confirm-btn">標記為已掌握</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// DATA — 完整114條 + 題庫
+// ════════════════════════════════════════════
+const ARTS=[
+{num:1,ch:'第一章',title:'立法目的',text:'為建立政府採購制度，依公平、公開之採購程序，提升採購效率與功能，確保採購品質，爰制定本法。',subs:[]},
+{num:2,ch:'第一章',title:'採購定義',text:'本法所稱採購，指工程之定作、財物之買受、定製、承租及勞務之委任或僱傭等。',subs:[]},
+{num:3,ch:'第一章',title:'機關定義',text:'政府機關、公立學校、公營事業（以下簡稱機關）辦理採購，依本法之規定；本法未規定者，適用其他法律之規定。',subs:[]},
+{num:4,ch:'第一章',title:'補助採購適用',text:'法人或團體接受機關補助辦理採購，其補助金額占採購金額半數以上，且補助金額在公告金額以上者，適用本法之規定，並應受該機關之監督。',subs:[]},
+{num:5,ch:'第一章',title:'受委託採購',text:'機關採購得委託法人或團體代辦。\n前項受委託法人或團體辦理採購，依本法有關機關之規定辦理。',subs:[]},
+{num:6,ch:'第一章',title:'公平原則',text:'機關辦理採購，應以維護公共利益及公平合理為原則，對廠商不得為無正當理由之差別待遇。\n辦理採購人員於不違反本法規定之範圍內，得基於公共利益、採購效益或專業判斷之考量，為適當之採購決定。',subs:[]},
+{num:7,ch:'第一章',title:'工程、財物、勞務',text:'本法所稱工程，指在地面上下新建、增建、改建、修建、拆除構造物與其所屬設備及改變自然環境之行為，包括建築、土木、水利、環境、交通、機械、電氣、化工及其他經主管機關認定之工程。\n本法所稱財物，指各種物品（生鮮農漁產品除外）、材料、設備、機具與其他動產、不動產、權利及其他經主管機關認定之財物。\n本法所稱勞務，指專業服務、技術服務、資訊服務、研究發展、營運管理、維修、訓練、勞力及其他經主管機關認定之勞務。\n採購兼有工程、財物、勞務二種以上性質，難以認定其歸屬者，按其性質所占預算金額比率最高者歸屬之。',subs:[]},
+{num:8,ch:'第一章',title:'廠商定義',text:'本法所稱廠商，指公司、合夥或獨資之工商行號及其他得提供各機關工程、財物、勞務之自然人、法人、機構或團體。',subs:[]},
+{num:9,ch:'第一章',title:'金額定義',text:'本法所稱公告金額、查核金額及巨額採購金額，由主管機關參酌相關法規定之。',subs:[]},
+{num:10,ch:'第一章',title:'小額採購',text:'機關辦理公告金額以下之採購，得不適用本法招標、決標及履約管理等規定。但應依廉能原則，並符合政府採購法之立法目的。',subs:[]},
+{num:11,ch:'第一章',title:'主管機關',text:'主管機關為行政院採購暨公共工程委員會，以政務委員一人兼任主任委員。',subs:[]},
+{num:12,ch:'第一章',title:'上級機關監督',text:'機關辦理查核金額以上採購之開標、比價、議價、決標及驗收時，應於規定期限內，檢送相關文件報請上級機關派員監辦；上級機關得視事實需要訂定授權條件，由機關自行辦理。\n巨額採購，應由主管機關派員監辦。',subs:[]},
+{num:13,ch:'第一章',title:'稽查',text:'主管機關及直轄市、縣（市）政府為辦理本法有關業務，得設採購稽查單位；其組織及相關辦法，由主管機關定之。\n機關辦理採購，其主管機關得視需要隨時稽查；廠商對採購案件，得向有關機關提出申訴。',subs:[]},
+{num:14,ch:'第一章',title:'代辦採購',text:'機關得請其他機關代辦採購。\n受託代辦之機關，視同委託機關，適用本法之規定辦理採購。',subs:[]},
+{num:15,ch:'第一章',title:'迴避規定',text:'機關承辦、監辦採購人員離職後三年內，不得為本人或代理廠商向原任職機關接洽處理離職前五年內與職務有關之事務。\n機關人員對於與採購有關之事項，涉及本人、配偶、二親等以內親屬，或共同生活家屬之利益時，應行迴避。\n機關首長發現前項人員有應迴避之情事而未迴避者，應令其迴避。\n廠商或其負責人與機關首長有第二項所定關係者，不得參與該機關之採購。但本項之執行反不利於競爭或為無正當理由之差別待遇者，不適用之。',subs:[]},
+{num:16,ch:'第一章',title:'不得收受招待',text:'請託或關說，宜以書面為之或作成紀錄。\n政風機構得調閱前項書面或紀錄。',subs:[]},
+{num:17,ch:'第一章',title:'採購國際公約',text:'外國廠商參與各機關採購，應依我國締結之條約或協定之規定辦理。\n前項條約或協定，包括與世界貿易組織（WTO）政府採購協定會員及我國或公立學校之海外辦理採購事宜。',subs:[]},
+{num:18,ch:'第二章',title:'招標方式',text:'採購之招標方式，分為公開招標、選擇性招標及限制性招標。\n公開招標，指以公告方式邀請不特定廠商投標。\n選擇性招標，指以公告方式預先依一定資格條件辦理廠商資格審查後，再行邀標。\n限制性招標，指不經公告程序，邀請二家以上廠商比價或僅邀請一家廠商議價。',subs:['公開招標：以公告方式邀請不特定廠商投標。','選擇性招標：以公告方式預先依一定資格條件辦理廠商資格審查後，再行邀標。','限制性招標：不經公告程序，邀請二家以上廠商比價或僅邀請一家廠商議價。']},
+{num:19,ch:'第二章',title:'公開招標原則',text:'機關辦理公告金額以上之採購，除依第二十條及第二十二條辦理者外，應公開招標。',subs:[]},
+{num:20,ch:'第二章',title:'選擇性招標條件',text:'機關辦理公告金額以上之採購，符合下列情形之一者，得採選擇性招標：\n一、經常性採購。\n二、投標文件審查，須費時長久始能完成者。\n三、廠商準備投標需高額費用者。\n四、廠商資格條件複雜者。\n五、訴訟案件，不宜公開招標者。',subs:['一、經常性採購。','二、投標文件審查，須費時長久始能完成者。','三、廠商準備投標需高額費用者。','四、廠商資格條件複雜者。','五、訴訟案件，不宜公開招標者。']},
+{num:21,ch:'第二章',title:'選擇性招標名單',text:'機關為辦理選擇性招標，得預先辦理廠商資格審查，建立合格廠商名單，有效期間不得逾三年，期滿前得予以更新。\n合格廠商名單應隨時受理廠商申請資格審查，並刊登政府採購公報；資格審查不合格者，得補正一次。',subs:[]},
+{num:22,ch:'第二章',title:'限制性招標條件',text:'機關辦理公告金額以上之採購，符合下列情形之一者，得採限制性招標：\n一、以公開招標或選擇性招標辦理結果無廠商投標或無合格標，且以原定招標內容及條件未經重大改變者。\n二、屬專屬權利、獨家製造或供應、藝術品、秘密採購或商業機密，無其他合適之替代標的者。\n三、遭遇緊急情形或災害，確有必要者。\n四、原有採購之後續維修、零配件供應、更換或擴充，因相容或互通性之需要，必須向原供應廠商採購者。\n五、屬原型或首次製造、供應之標的，以研究發展、實驗或開發性質辦理者。\n六、在原招標目的範圍內，因未能預見之情形，必須追加契約以外之工程者。\n七、原有採購之後續擴充，且已於原招標公告及招標文件敘明擴充之期間、金額或數量者。\n八、在集中交易或公開競價市場採購財物。\n九、委託專業服務、技術服務、資訊服務或社會福利服務，經公開客觀評選為優勝者。\n十、採購金額在公告金額十分之一以下者。',subs:['一、以公開招標或選擇性招標辦理結果無廠商投標或無合格標者。','二、屬專屬權利、獨家製造或供應、藝術品、秘密採購者。','三、遭遇緊急情形或災害，確有必要者。','四、原有採購之後續維修、零配件供應、更換或擴充者。','五、屬原型或首次製造、供應之標的，以研究發展性質辦理者。']},
+{num:23,ch:'第二章',title:'共同供應契約',text:'機關得洽由其他機關代辦採購，或以聯合採購方式合作辦理採購。\n主管機關及直轄市、縣（市）政府得辦理共同供應契約採購，供各機關使用。\n共同供應契約採購之適用範圍、作業程序及使用機關，由主管機關定之。',subs:[]},
+{num:24,ch:'第二章',title:'統包',text:'機關基於效率及品質之要求，得以統包辦理招標。\n統包係指將工程或財物採購中之設計與施工、供應、安裝或一定期間之維修等併於同一採購契約辦理招標。',subs:[]},
+{num:25,ch:'第二章',title:'聯合投標',text:'機關得視採購案件之特性，於招標文件中規定允許廠商聯合投標。\n聯合投標廠商應共同具備履行契約之能力，以主辦廠商為代表，就履約事項連帶負責。\n聯合投標廠商不得以同一投標案件同時單獨投標或與其他廠商另行聯合投標。',subs:[]},
+{num:26,ch:'第二章',title:'技術規格',text:'機關辦理公告金額以上之採購，應依功能或效益訂定招標文件。其有國際標準或國家標準者，應從其規定。\n機關所擬定、採用或適用之技術規格，在目的及效果上均不得限制競爭。\n招標文件不得要求或提及特定之商標或商名、專利、設計或型式、特定來源地。但無法以精確之方式說明招標要求，而已在招標文件內註明諸如「或同等品」字樣者，不在此限。',subs:[]},
+{num:27,ch:'第二章',title:'招標公告',text:'機關辦理公開招標或選擇性招標，應將招標公告或辦理資格審查之公告刊登於政府採購公報並公開於資訊網路。\n機關辦理採購時，應估計採購案件之件數及每件之預計金額。預算及預計金額，得於招標公告中一併公開。',subs:[]},
+{num:28,ch:'第二章',title:'等標期',text:'機關辦理招標，應於招標文件中載明開標時間，並給予廠商合理之等標期。\n前項等標期，不得少於主管機關所定之期限。',subs:[]},
+{num:29,ch:'第二章',title:'招標文件收費',text:'招標文件應公開於主管機關指定之資訊網路，廠商須繳納費用者，機關得於招標文件中規定，其費用以工本費為限。',subs:[]},
+{num:30,ch:'第二章',title:'押標金',text:'機關辦理招標，得依採購特性及實際需要，要求廠商繳納押標金；廠商得以銀行開具之見票即付保付支票、銀行匯票、無記名政府公債、設定質權之金融機構定期存款單、銀行開具之本行支票或保證金保證書、郵政匯票繳納之。\n押標金之金額，以不逾預算金額或預估採購總額之百分之五為原則。',subs:[]},
+{num:31,ch:'第二章',title:'押標金之沒入',text:'廠商有下列情形之一者，其所繳納之押標金，不予發還；其未繳納者，並予追繳：\n一、以偽造、變造之文件投標。\n二、借用他人名義或證件投標，或容許他人借用本人名義或證件參加投標。\n三、冒用他人名義或證件投標。\n四、得標後拒不簽約。\n五、得標後未於規定期限內，繳足保證金或提供擔保。\n六、對採購有關人員行求、期約或交付不正利益。',subs:['一、以偽造、變造之文件投標。','二、借用他人名義或證件投標，或容許他人借用本人名義參加投標。','三、冒用他人名義或證件投標。','四、得標後拒不簽約。','五、得標後未於規定期限內繳足保證金。','六、對採購有關人員行求、期約或交付不正利益。']},
+{num:32,ch:'第二章',title:'底價保密',text:'底價於開標後至決標前，仍應保密，於決標後得予公開。但有妨害公共利益或有關機密事項者，得不予公開。',subs:[]},
+{num:33,ch:'第二章',title:'投標文件',text:'廠商之投標文件，應以書面密封，於招標文件規定之截止投標期限前，以郵遞或專差遞送，或依招標文件規定以電子資料傳輸方式遞送至招標機關。\n機關得於招標文件中規定允許廠商於開標前補正非契約必要之點之文件。',subs:[]},
+{num:34,ch:'第二章',title:'廢標',text:'機關辦理採購，無廠商投標或所有廠商之標價均超過底價者，廢標。\n機關辦理採購，發現有足以影響採購公正之違法或不當行為者，得視情況撤銷辦理採購之程序，重新辦理。',subs:[]},
+{num:35,ch:'第二章',title:'分段開標',text:'機關辦理採購，得於招標文件中規定採分段開標方式；分段開標，指依招標文件規定，分段審視廠商投標文件，其後段文件於前段文件審視通過後，始予開啟之方式。',subs:[]},
+{num:36,ch:'第二章',title:'廠商資格',text:'機關辦理採購，得依實際需要，規定投標廠商之基本資格。\n特殊或巨額之採購，須由具有相當經驗、實績、人力、財力、設備等之廠商始能擔任者，得另規定投標廠商之特定資格。\n第一項基本資格、第二項特定資格與特殊或巨額採購之範圍及認定標準，由主管機關定之。',subs:[]},
+{num:37,ch:'第二章',title:'廠商資格審查',text:'機關訂定前條投標廠商之資格，不得不當限制競爭，並以確認廠商具備履行契約所必須之能力者為限。\n投標廠商未符合前條所定資格者，其投標不予受理。但廠商之財力資格，得以銀行或保險公司之履約及賠償連帶保證責任替代之。',subs:[]},
+{num:38,ch:'第二章',title:'政府採購協定',text:'外國廠商依第十七條規定投標者，所提出之文件，得以中文或英文書寫。',subs:[]},
+{num:39,ch:'第二章',title:'委託辦理評選',text:'機關辦理採購，得依本法規定，委託具有專業能力之法人或團體，代辦招標、評選及決標等事項。\n受委託辦理採購事宜之法人或團體，不得參與該採購案件之投標或作為任何廠商之分包廠商。',subs:[]},
+{num:40,ch:'第二章',title:'委託代辦採購',text:'機關之採購，得洽由其他具有專業能力之機關代辦。\n機關辦理採購，得委託技術服務廠商，就招標、評選及決標等採購事項提供協助。',subs:[]},
+{num:41,ch:'第二章',title:'廠商提出疑義',text:'廠商對招標文件內容有疑義者，應於招標文件規定之日期前，以書面向招標機關提出，機關應即時答復之。',subs:[]},
+{num:42,ch:'第二章',title:'開標程序',text:'公開招標及選擇性招標之開標，除法令另有規定外，應依招標文件公告之時間及地點公開為之。\n廠商於開標前，不得向機關或評選委員行求期約或交付不正利益。',subs:[]},
+{num:43,ch:'第二章',title:'開標結果',text:'機關辦理採購，得於招標文件中訂明，得標廠商放棄投標保證金或拒絕簽訂契約後，由次低標廠商遞補。',subs:[]},
+{num:44,ch:'第二章',title:'審標',text:'機關辦理審標，得視需要邀請廠商說明。但不得藉說明要求廠商就標的或報價作實質之變更。',subs:[]},
+{num:45,ch:'第二章',title:'比價與議價',text:'公開招標應依投標須知所定方式決標；選擇性招標及限制性招標，應依招標文件所定之評審標準，辦理比價或議價。\n前項辦理比價或議價，有二家以上合格廠商時，應辦理比價。',subs:[]},
+{num:46,ch:'第二章',title:'底價訂定',text:'機關辦理採購，除本法另有規定外，應訂定底價。底價應依圖說、規範、契約並考量成本、市場行情及政府機關決標資料逐項編列，由機關首長或其授權人員核定。\n底價於開標前應保密，於開標後至決標前，仍應保密。',subs:[]},
+{num:47,ch:'第二章',title:'無底價採購',text:'機關辦理下列採購，得不訂底價；其決標原則，應於招標文件載明：\n一、訂定底價確有困難之特殊或複雜案件。\n二、以最有利標決標之採購。\n三、小額採購。',subs:['一、訂定底價確有困難之特殊或複雜案件。','二、以最有利標決標之採購。','三、小額採購。']},
+{num:48,ch:'第二章',title:'廢標情形',text:'機關依本法規定辦理採購，有應公開招標而未公開、應辦理資格審查而未辦理、或發現有足以影響採購公正之違法或不當情事等情形之一，應予廢標。\n廢標時，應將廢標之原因及結果通知廠商。',subs:[]},
+{num:49,ch:'第二章',title:'開標結果不符',text:'機關辦理採購，發現廠商有不符合招標文件規定情事者，應通知廠商說明，廠商未依期間內提出說明或說明不符者，其投標不予受理。',subs:[]},
+{num:50,ch:'第二章',title:'不予決標情形',text:'廠商有容許他人借用名義投標、借用或冒用他人名義投標、以虛偽不實之文件投標、受停業處分期間仍參加投標、犯第八十七條至第九十二條之罪經一審有罪判決等情形之一，機關應不決標予該廠商。',subs:[]},
+{num:51,ch:'第二章',title:'合格廠商之議約',text:'機關以辦理議價方式決標，應先確認廠商具備投標廠商所需之資格。',subs:[]},
+{num:52,ch:'第三章',title:'決標原則',text:'機關辦理採購之決標，應依下列原則之一辦理，並應載明於招標文件中：\n一、訂有底價之採購，以合於招標文件規定，且在底價以內之最低標為得標廠商。\n二、未訂底價之採購，以合於招標文件規定，標價合理，且在預算數額以內之最低標為得標廠商。\n三、以合於招標文件規定之最有利標為得標廠商。\n四、採用複數決標之方式。',subs:['一、訂有底價之採購，以在底價以內之最低標為得標廠商。','二、未訂底價之採購，以標價合理之最低標為得標廠商。','三、以最有利標為得標廠商。','四、採用複數決標之方式。']},
+{num:53,ch:'第三章',title:'超過底價之處理',text:'合於招標文件規定之投標廠商均高於底價時，得洽最低標廠商減價一次；減價結果仍超過底價時，得由機關首長或其授權人員核准，以底價決標，並於採購公報公告其事由，或廢標。',subs:[]},
+{num:54,ch:'第三章',title:'最有利標評選委員會',text:'機關採最有利標決標時，評選委員會委員人數，應為五人以上，且具有與採購標的相關專業知識之委員人數，不得少於三分之一。\n評選委員會委員由機關就具有相關專業知識、技術及採購法令之人員遴選組成，並應避免利益衝突。',subs:[]},
+{num:55,ch:'第三章',title:'最有利標評審標準',text:'採用最有利標之採購，其招標文件應敘明評審標準，包含重要之計畫書、資格及評審項目，評審項目得包括作業時程、技術、品質、管理能力、過去之履約績效或其他有關事項，並載明各評審項目之評分比例或作業方式。',subs:[]},
+{num:56,ch:'第三章',title:'最有利標之決定',text:'評選委員會辦理評選，應製作評選紀錄，評定最有利標，提報機關首長決定。評選紀錄應記載各廠商評審結果、得標廠商及其理由，並敘明評選委員之不同意見。',subs:[]},
+{num:57,ch:'第三章',title:'決標通知',text:'決標後，機關應將決標結果通知各投標廠商，並公告於政府採購公報及資訊網路。',subs:[]},
+{num:58,ch:'第三章',title:'低於底價之處理',text:'機關辦理採購採最低標決標時，如認為最低標廠商之總標價或部分標價偏低，顯不合理，有降低品質、不能誠信履約之虞或其他特殊情形，得限期通知該廠商提出說明或擔保。廠商未依通知期限提出合理之說明或擔保者，得不決標予該廠商，並以次低標廠商為最低標廠商。',subs:[]},
+{num:59,ch:'第三章',title:'廠商不得妨礙競爭',text:'廠商對採購有關之事項，不得有不當之行為，或組成聯合行為之情事，致妨礙公平競爭或影響採購價格。',subs:[]},
+{num:60,ch:'第三章',title:'廠商拒絕簽約',text:'廠商於決標後，拒絕依招標文件規定與機關簽訂契約者，機關得沒入其押標金，並得刊登政府採購公報。\n前項情形，機關得洽次低標廠商或次有利標廠商締結契約；廠商不接受者，機關得重行招標。',subs:[]},
+{num:61,ch:'第三章',title:'公開決標',text:'機關辦理公開招標或選擇性招標，廠商投標文件經審查通過者，應公開決標。',subs:[]},
+{num:62,ch:'第三章',title:'減價',text:'機關辦理採購，廠商之投標報價超過底價時，機關得洽廠商減價或重新比減價格，且均須取得廠商書面同意書。',subs:[]},
+{num:63,ch:'第四章',title:'採購契約原則',text:'各類採購契約以採用主管機關訂定之範本為原則，其要項及內容由主管機關參考國際及國內慣例定之。\n機關得視採購金額，要求廠商提供與採購案之特性及需要相符之履約保證金。',subs:[]},
+{num:64,ch:'第四章',title:'契約變更',text:'採購契約得訂明因政府政策變更，廠商依契約規定履行義務時，國家應補償廠商因此所受之損失。\n採購契約應訂明機關或廠商請求變更契約事項之條件。',subs:[]},
+{num:65,ch:'第四章',title:'禁止轉包',text:'得標廠商應自行履行工程、勞務契約，不得轉包。\n前項所稱轉包，指將原契約中應自行履行之全部或其主要部分，由其他廠商代為履行。',subs:[]},
+{num:66,ch:'第四章',title:'禁止轉包之例外',text:'得標廠商不得將採購契約轉包。但契約中有允許分包之規定者，或機關書面同意者，不在此限。',subs:[]},
+{num:67,ch:'第四章',title:'分包',text:'得標廠商得將採購分包予其他廠商。稱分包者，謂非轉包而將契約之部分由其他廠商代為履行。\n分包契約報備於採購機關後，分包廠商就其分包之部分，與得標廠商連帶負瑕疵擔保責任。',subs:[]},
+{num:68,ch:'第四章',title:'廠商責任',text:'廠商履約結果不符合契約規定事項者，機關得要求廠商補正、改善、拆除、重作、退貨、換貨或賠償，廠商不得拒絕。',subs:[]},
+{num:69,ch:'第四章',title:'財物之保管',text:'廠商所提供或製造之工程、財物或勞務，機關不得不當使用或干擾廠商之正當施工或履約工作。',subs:[]},
+{num:70,ch:'第四章',title:'查驗及品質管制',text:'機關辦理工程採購，應訂定施工品質管理作業要點，廠商應依施工圖說、施工規範等契約文件施工，並應確實執行品質計畫，機關應辦理相關查驗工作。',subs:[]},
+{num:71,ch:'第五章',title:'驗收',text:'機關辦理工程、財物採購，應限期辦理驗收，並得辦理部分驗收。\n驗收時應由機關首長或其授權人員為之，必要時得委託專業人員辦理。',subs:[]},
+{num:72,ch:'第五章',title:'驗收結果處理',text:'機關辦理驗收時，驗收結果與契約、圖說、貨樣規定不符者，應通知廠商限期改善、拆除、重作、退貨或換貨。其驗收結果不符部分非屬重要，而其他部分能先行使用，並經機關檢討確有先行使用之必要者，得辦理部分驗收。\n驗收完竣後，機關應辦理結算，並於結算後十四日內，將結算資料送政府採購電子網路公告。',subs:[]},
+{num:73,ch:'第五章',title:'驗收人員',text:'工程及財物採購之驗收，應由機關首長或其授權人員為之，必要時得委託具有相關技術能力之機關或廠商辦理。\n勞務採購之驗收，得於領取成果或服務後辦理；委託之勞務，其驗收依契約之規定。',subs:[]},
+{num:74,ch:'第六章',title:'廠商異議',text:'廠商與機關間關於招標、審標、決標之爭議，得依本章規定提出異議及申訴。',subs:[]},
+{num:75,ch:'第六章',title:'提出異議',text:'廠商對於機關辦理採購，認為違反法令，致損害其權利或利益者，得於下列期限內，以書面向招標機關提出異議：\n一、對招標文件規定提出異議者，為自公告或邀標之次日起等標期之四分之一，其日數不足五日者，以五日計。\n二、對採購之過程、結果提出異議者，為接獲機關通知或公告之次日起十日內。\n三、機關未為通知或公告者，廠商得於知悉或可得而知之日起十日內提出異議，但不得逾公告後一年。',subs:['一、對招標文件規定：自公告次日起等標期四分之一（至少五日）。','二、對採購過程、結果：接獲通知或公告次日起十日內。','三、機關未為通知者：知悉後十日內，但不逾公告後一年。']},
+{num:76,ch:'第六章',title:'提出申訴',text:'廠商對於公告金額以上採購異議之處理結果不服，或招標機關逾前條第二項所定期限不為處理者，得於收受異議處理結果或期限屆滿之次日起十五日內，以書面向該管採購申訴審議委員會申訴。',subs:[]},
+{num:77,ch:'第六章',title:'申訴書格式',text:'廠商提出申訴，應以書面為之，並載明申訴廠商之名稱、地址、電話及負責人之姓名、原異議之機關、申訴事項及理由。',subs:[]},
+{num:78,ch:'第六章',title:'申訴之補正',text:'申訴書不合規定，得於採購申訴審議委員會所定期間補正。',subs:[]},
+{num:79,ch:'第六章',title:'申訴之審議',text:'採購申訴審議委員會應於收受申訴書之次日起四十個工作日內，完成審議，並將審議判斷書送達申訴廠商及招標機關。\n必要時，前項期限得延長四十個工作日，延長以一次為限。',subs:[]},
+{num:80,ch:'第六章',title:'申訴之效力',text:'申訴逾越法定期間或不合法定程式，其情形不可補正者，採購申訴審議委員會應不受理。',subs:[]},
+{num:81,ch:'第六章',title:'申訴期間採購不停止',text:'申訴期間，原採購之程序不停止。但採購申訴審議委員會於審議期間，認情況急迫或有必要時，得通知招標機關暫停採購之程序。',subs:[]},
+{num:82,ch:'第六章',title:'審議判斷',text:'採購申訴審議委員會審議判斷，指明原採購行為違反法令者，招標機關應另為適法之處置。\n招標機關不依審議判斷辦理者，廠商得向採購申訴審議委員會申請強制執行。',subs:[]},
+{num:83,ch:'第六章',title:'審議判斷效力',text:'審議判斷，視同訴願決定。\n採購申訴審議委員會就廠商所提申訴，於審議判斷中指明廠商之申訴為有理由，且認為應予機關改正之採購行為時，機關應依審議判斷辦理。',subs:[]},
+{num:84,ch:'第六章',title:'廠商申訴處理',text:'廠商提出申訴，採購申訴審議委員會認申訴有理由者，除情況急迫顯然無法等待者外，招標機關應暫停招標程序。',subs:[]},
+{num:85,ch:'第六章',title:'履約爭議調解',text:'機關與廠商因履約爭議未能達成協議者，得以下列方式處理：\n一、向採購申訴審議委員會申請調解。\n二、依契約規定提付仲裁。\n三、提出訴訟。\n因前項調解成立，視為當事人間之和解。',subs:['一、向採購申訴審議委員會申請調解。','二、依契約規定提付仲裁。','三、提出訴訟。']},
+{num:86,ch:'第六章',title:'採購申訴審議委員會',text:'主管機關及直轄市、縣（市）政府為處理廠商申訴及機關與廠商間之履約爭議調解，分別設採購申訴審議委員會；置委員七人至二十五人，由主管機關及直轄市、縣（市）政府聘用具有法律或採購相關專門知識之人員擔任。\n委員任期二年，連任不得逾三屆。',subs:[]},
+{num:87,ch:'第七章',title:'圍標罪',text:'意圖使廠商不為投標、違反其本意投標，或使得標廠商放棄得標、得標後轉包或分包，而施強暴、脅迫、藥劑或催眠術者，處一年以上七年以下有期徒刑，得併科新臺幣三百萬元以下罰金。\n以詐術或其他非法之方法，使廠商不為投標、違反其本意投標、或使得標廠商放棄得標、得標後轉包或分包者，處三年以下有期徒刑，得併科新臺幣一百萬元以下罰金。',subs:[]},
+{num:88,ch:'第七章',title:'洩漏底價罪',text:'受機關委託提供採購規劃、設計、審查、監造、專案管理或代辦採購廠商之人員，意圖為私人不法之利益，對技術、工法、材料、設備及其費用，為違反職務之行為者，處一年以上七年以下有期徒刑，得併科新臺幣三百萬元以下罰金。',subs:[]},
+{num:89,ch:'第七章',title:'影響決標罪',text:'受機關委託提供採購規劃、設計或專案管理或代辦採購廠商之人員犯前條之罪者，依前條之規定處斷。',subs:[]},
+{num:90,ch:'第七章',title:'借名投標罪',text:'意圖影響決標價格或獲取不當利益，而借用他人名義或證件投標者，處三年以下有期徒刑，或科或併科新臺幣一百萬元以下罰金。\n容許他人借用本人名義或證件參加投標者，亦同。',subs:[]},
+{num:91,ch:'第七章',title:'不實文件投標罪',text:'意圖影響決標價格或獲取不當利益，而以不實之文件投標者，處三年以下有期徒刑，得併科新臺幣一百萬元以下罰金。',subs:[]},
+{num:92,ch:'第七章',title:'法人罰',text:'廠商之代表人、代理人、受僱人或其他從業人員，因執行業務犯第八十七條至第九十一條之罪者，除依各該條規定處罰其行為人外，對該廠商亦科以各該條之罰金。',subs:[]},
+{num:93,ch:'第八章',title:'機關違規懲處',text:'機關辦理採購有違反本法之規定情形，主管機關得予警告、停止招標程序或其他必要措施；情節重大者，並得對機關首長予以行政處分。',subs:[]},
+{num:94,ch:'第八章',title:'不當採購懲處',text:'機關辦理採購，其人員涉及違法或不當行為，致損害機關或廠商之利益者，機關應依法予以懲處，並得向其追償損害。',subs:[]},
+{num:95,ch:'第八章',title:'刁難廠商懲處',text:'機關承辦採購人員故意刁難或苛索廠商者，依法懲處；情節重大者，並移請檢察官偵查。',subs:[]},
+{num:96,ch:'第八章',title:'採購績效',text:'機關辦理採購，應力求降低採購成本，提升採購效率及品質，並達成採購預期目標；其績效評核辦法，由主管機關定之。',subs:[]},
+{num:97,ch:'第八章',title:'優先採購',text:'主管機關得參酌相關標準，訂定優先採購之政策，包括優先採購台灣製造產品、促進中小企業參與採購、鼓勵採購環保產品等。',subs:[]},
+{num:98,ch:'第八章',title:'身心障礙保護',text:'得標廠商其於國內員工總人數逾一百人者，應於履約期間僱用身心障礙者及原住民，人數不得低於總人數百分之二，僱用不足者，除應繳納代金，並不得僱用外籍勞工替代。',subs:[]},
+{num:99,ch:'第八章',title:'採購資料保存',text:'機關辦理採購，應依主管機關規定，將採購相關資料保存一定期限，以備查考。前項採購相關資料，包括招標文件、投標文件、審標紀錄、評選委員會紀錄及決標結果等。',subs:[]},
+{num:100,ch:'第八章',title:'彙整報告',text:'主管機關應將廠商申訴、機關違法採購及懲處情形，定期彙整報告政府採購公報，並函報行政院。',subs:[]},
+{num:101,ch:'第八章',title:'停權之通知',text:'機關辦理採購，發現廠商有容許他人借用名義投標、借用或冒用他人名義或證件投標、擅自減省工料情節重大、以虛偽不實之文件投標情節重大、受停業處分期間仍參加投標、犯第八十七條至九十二條之罪經一審有罪判決、立約後無正當理由不履行契約、查驗或驗收不合格情節重大、驗收後不履行保固責任情節重大、因可歸責於廠商事由致延誤履約期限情節重大、違反第六十五條轉包者等情形之一，應將其事實、理由及依第一百零三條第一項所定期間通知廠商，並附記如未提出異議者，將刊登政府採購公報。',subs:[]},
+{num:102,ch:'第八章',title:'廠商之異議申訴',text:'廠商對於機關依前條所為之通知，認為違反本法或不實者，得於接獲通知之次日起二十日內，以書面向該機關提出異議。\n廠商對前項異議之處理結果不服，或機關逾期不為處理者，得於收受異議處理結果或期限屆滿之次日起十五日內，以書面向採購申訴審議委員會申訴。',subs:[]},
+{num:103,ch:'第八章',title:'停權期間',text:'依前條第三項規定刊登政府採購公報之廠商，於下列期間內，不得參加投標或作為決標對象或分包廠商：\n一、有第一百零一條第一款至第五款情形或第六款判處有期徒刑者，為三年。\n二、有第一百零一條第六款判處拘役、罰金或緩刑者，為一年。\n三、有第一百零一條第七款至第十四款情形者，為一年。',subs:['一、第一款至第五款情形或第六款判處有期徒刑：三年。','二、第六款判處拘役、罰金或緩刑：一年。','三、第七款至第十四款情形：一年。']},
+{num:104,ch:'第九章',title:'軍事採購',text:'軍事機關之採購，應依本法之規定辦理。但武器、彈藥、作戰物資或與國家安全或國防目的有關之採購，而有因應國家面臨戰爭得不適用本法、機密或極機密之採購得不適用部分條文、確因時效緊急有危及重大戰備任務之虞者得不適用特定條文等情形者，不在此限。',subs:[]},
+{num:105,ch:'第九章',title:'適用之排除',text:'機關辦理下列採購，得不適用本法招標、決標之規定：\n一、國家遭遇緊急危難或重大災害，需緊急處置之採購事項。\n二、人民之生命、身體、健康、財產遭受緊急危難，需緊急處置之採購事項。\n三、公務機關間財物或勞務之取得，經雙方機關合意，其中一方負擔服務之費用者。\n四、依條約或協定向國際組織、外國政府或其授權機構辦理之採購，其招標、決標另有規定者。',subs:[]},
+{num:106,ch:'第九章',title:'電子採購',text:'主管機關應建立電子採購系統，供機關辦理採購時使用，並應辦理採購電子化，廠商投標之申請及投標文件之傳送，得以電子方式為之。',subs:[]},
+{num:107,ch:'第九章',title:'施行細則',text:'本法施行細則，由主管機關定之。',subs:[]},
+{num:108,ch:'第九章',title:'採購人員訓練',text:'主管機關應訂定採購專業人員訓練計畫，辦理採購人員訓練；各機關辦理採購業務人員，應接受主管機關指定之訓練。',subs:[]},
+{num:109,ch:'第九章',title:'公告金額調整',text:'本法第九條所定公告金額，由主管機關定之；中央主管機關應視社會與經濟發展情形，適時調整之。',subs:[]},
+{num:110,ch:'第九章',title:'損害賠償',text:'機關辦理採購，發生錯誤，致廠商受有損害者，機關應予以賠償；廠商因故意或過失，致機關受有損害者，廠商應負賠償責任。',subs:[]},
+{num:111,ch:'第九章',title:'施行',text:'本法自公布日施行。本法修正條文，自公布日施行。但有特別規定者，不在此限。',subs:[]},
+{num:112,ch:'第九章',title:'授權事項',text:'本法各條文之授權事項，由主管機關以辦法、規則等方式定之。',subs:[]},
+{num:113,ch:'第九章',title:'施行日',text:'本法施行日期，由行政院定之。本法修正條文施行日期，由行政院定之。',subs:[]},
+{num:114,ch:'第九章',title:'施行',text:'本法自中華民國八十七年五月二十七日施行。本法中華民國一百零二年五月三十一日修正之條文，自公布日施行。',subs:[]},
+];
+
+const QBANK=[
+{sc:1,type:'mc',q:'政府採購法第18條將招標方式分為幾種？',opts:['二種','三種','四種','五種'],ans:1,ref:'第18條：招標方式分為公開招標、選擇性招標及限制性招標，共三種。',law:18},
+{sc:1,type:'mc',q:'依第4條，法人或團體受機關補助辦理採購，補助金額占採購金額多少以上須適用採購法？',opts:['三分之一以上','半數以上','三分之二以上','全部'],ans:1,ref:'第4條：補助金額占採購金額半數以上，且補助金額在公告金額以上者，適用本法。',law:4},
+{sc:1,type:'mc',q:'依第6條，機關辦理採購應以何原則為基礎？',opts:['效率最大化原則','公平合理原則','成本最低原則','保護本國廠商原則'],ans:1,ref:'第6條：機關辦理採購，應以維護公共利益及公平合理為原則。',law:6},
+{sc:1,type:'mc',q:'政府採購法主管機關為何？',opts:['財政部','內政部','行政院公共工程委員會','國家發展委員會'],ans:2,ref:'第11條：主管機關為行政院採購暨公共工程委員會。',law:11},
+{sc:1,type:'mc',q:'依第14條，受託代辦採購之機關法律地位為何？',opts:['僅為協助角色','視同委託機關，適用採購法','為下包廠商','為監督機關'],ans:1,ref:'第14條：受託代辦之機關，視同委託機關，適用本法之規定。',law:14},
+{sc:1,type:'mc',q:'依第20條，下列何者不是選擇性招標的適用情形？',opts:['經常性採購','廠商資格條件複雜者','採購金額過低者','投標文件審查需費時長久者'],ans:2,ref:'第20條：選擇性招標適用情形不包含金額過低。',law:20},
+{sc:1,type:'mc',q:'依第22條，機關遭遇緊急情形得採何種招標？',opts:['公開招標','選擇性招標','限制性招標','電子競價'],ans:2,ref:'第22條第三款：遭遇緊急情形或災害，確有必要者，得採限制性招標。',law:22},
+{sc:1,type:'mc',q:'依第25條，聯合投標廠商就履約事項如何負責？',opts:['由主辦廠商單獨負責','各廠商依比例分擔','連帶負責','由機關決定'],ans:2,ref:'第25條：以主辦廠商為代表，就履約事項連帶負責。',law:25},
+{sc:1,type:'mc',q:'依第52條，訂有底價之採購，決標以何者為得標廠商？',opts:['最高標','最低標且不超過底價','最有利標','機關指定廠商'],ans:1,ref:'第52條第一款：以合於招標文件規定，且在底價以內之最低標為得標廠商。',law:52},
+{sc:1,type:'mc',q:'依第53條，投標廠商均高於底價時，可洽最低標廠商減價幾次？',opts:['一次','二次','三次','無限制'],ans:0,ref:'第53條：得洽最低標廠商減價一次，減價後仍超過底價得由機關首長核准決標。',law:53},
+{sc:1,type:'mc',q:'依第58條，機關認為最低標廠商標價偏低時可採何措施？',opts:['直接廢標','限期通知廠商提出說明或擔保','改採第二低標','報請主管機關決定'],ans:1,ref:'第58條：得限期通知廠商提出說明或擔保。',law:58},
+{sc:1,type:'mc',q:'依第65條，「轉包」之定義為何？',opts:['將部分工程交由其他廠商','將原契約主要部分由其他廠商代為履行','將契約全部轉讓他人','向機關申請分包'],ans:1,ref:'第65條：轉包指將原契約中應自行履行之全部或其主要部分，由其他廠商代為履行。',law:65},
+{sc:1,type:'mc',q:'依第67條，分包廠商就其分包部分如何負責？',opts:['不負任何責任','與得標廠商連帶負瑕疵擔保責任','僅由得標廠商負責','由機關決定'],ans:1,ref:'第67條：分包廠商就其分包之部分，與得標廠商連帶負瑕疵擔保責任。',law:67},
+{sc:1,type:'mc',q:'依第71條，機關辦理工程採購驗收，下列何者正確？',opts:['不得辦理部分驗收','應限期辦理驗收，並得辦理部分驗收','驗收無期限限制','廠商申請後才辦理驗收'],ans:1,ref:'第71條：應限期辦理驗收，並得辦理部分驗收。',law:71},
+{sc:1,type:'mc',q:'依第75條，廠商對採購過程、結果提出異議，期限為接獲通知後幾日內？',opts:['五日','十日','十五日','二十日'],ans:1,ref:'第75條：為接獲機關通知或公告之次日起十日內。',law:75},
+{sc:1,type:'mc',q:'依第79條，採購申訴審議委員會應於收受申訴書次日起幾個工作日內完成審議？',opts:['二十個工作日','三十個工作日','四十個工作日','六十個工作日'],ans:2,ref:'第79條：應於收受申訴書之次日起四十個工作日內，完成審議。',law:79},
+{sc:1,type:'mc',q:'依第83條，審議判斷視同何種決定？',opts:['行政處分','訴願決定','法院判決','仲裁判斷'],ans:1,ref:'第83條：審議判斷，視同訴願決定。',law:83},
+{sc:1,type:'mc',q:'依第103條，廠商借用他人名義投標，停權期間為幾年？',opts:['一年','二年','三年','五年'],ans:2,ref:'第103條第一款：有第一百零一條第一款至第五款情形者，停權期間為三年。',law:103},
+{sc:1,type:'tf',q:'政府採購法第1條明定立法目的為建立採購制度，依公平、公開之採購程序，提升採購效率與功能，確保採購品質。',ans:true,ref:'第1條：為建立政府採購制度，依公平、公開之採購程序，提升採購效率與功能，確保採購品質。',law:1},
+{sc:1,type:'tf',q:'依政府採購法，私立學校受機關補助採購，無論金額均須適用本法。',ans:false,ref:'第4條：補助金額須占採購金額半數以上，且在公告金額以上，才需適用。',law:4},
+{sc:1,type:'tf',q:'機關辦理採購，得對廠商為無正當理由之差別待遇。',ans:false,ref:'第6條：對廠商不得為無正當理由之差別待遇。',law:6},
+{sc:1,type:'tf',q:'採購之招標方式僅分為公開招標及限制性招標兩種。',ans:false,ref:'第18條：分為公開招標、選擇性招標及限制性招標三種。',law:18},
+{sc:1,type:'tf',q:'選擇性招標係以公告方式預先辦理廠商資格審查後再行邀標。',ans:true,ref:'第18條：選擇性招標係以公告方式預先依一定資格條件辦理廠商資格審查後，再行邀標。',law:18},
+{sc:1,type:'tf',q:'限制性招標可邀請一家廠商議價。',ans:true,ref:'第18條：限制性招標指不經公告程序，邀請二家以上廠商比價或僅邀請一家廠商議價。',law:18},
+{sc:1,type:'tf',q:'遭遇緊急情形，機關得採選擇性招標辦理採購。',ans:false,ref:'第22條：緊急情形應採限制性招標，非選擇性招標。',law:22},
+{sc:1,type:'tf',q:'得標廠商應自行履行工程契約，不得轉包。',ans:true,ref:'第65條：得標廠商應自行履行工程、勞務契約，不得轉包。',law:65},
+{sc:1,type:'tf',q:'廠商將契約部分工項交由其他廠商執行，屬於轉包。',ans:false,ref:'第67條：將契約部分由其他廠商代為履行屬分包，非轉包。',law:67},
+{sc:1,type:'tf',q:'機關辦理工程採購驗收時，不得辦理部分驗收。',ans:false,ref:'第71條：應限期辦理驗收，並得辦理部分驗收。',law:71},
+{sc:1,type:'tf',q:'驗收結果與契約不符時，機關應通知廠商限期改善。',ans:true,ref:'第72條：應通知廠商限期改善、拆除、重作、退貨或換貨。',law:72},
+{sc:1,type:'tf',q:'採購契約應以主管機關訂定之範本為原則。',ans:true,ref:'第63條：各類採購契約以採用主管機關訂定之範本為原則。',law:63},
+{sc:1,type:'tf',q:'訂有底價之採購，最低標只要在底價以內且符合招標文件規定即可決標。',ans:true,ref:'第52條：以合於招標文件規定，且在底價以內之最低標為得標廠商。',law:52},
+{sc:1,type:'tf',q:'投標廠商標價均高於底價時，機關最多可洽最低標廠商減價兩次。',ans:false,ref:'第53條：僅得洽最低標廠商減價一次。',law:53},
+{sc:1,type:'tf',q:'機關認為最低標廠商標價偏低，得限期通知廠商提出說明或擔保。',ans:true,ref:'第58條：得限期通知廠商提出說明或擔保。',law:58},
+{sc:1,type:'tf',q:'採購申訴審議委員會之審議判斷，視同訴願決定。',ans:true,ref:'第83條：審議判斷，視同訴願決定。',law:83},
+{sc:1,type:'tf',q:'廠商對採購過程提出異議之期限為接獲通知後五日內。',ans:false,ref:'第75條：為接獲機關通知或公告之次日起十日內。',law:75},
+{sc:1,type:'tf',q:'公告金額以上之採購，皆須採公開招標，不得採限制性招標。',ans:false,ref:'第22條：公告金額以上採購符合特定情形，仍得採限制性招標。',law:22},
+{sc:1,type:'tf',q:'機關辦理採購，其上級機關得隨時稽查。',ans:true,ref:'第13條：機關之上級機關及主管機關，對於機關辦理採購，得隨時稽查之。',law:13},
+{sc:1,type:'tf',q:'受託代辦採購之機關，視同委託機關，適用採購法。',ans:true,ref:'第14條：受託代辦之機關，視同委託機關，適用本法之規定。',law:14},
+{sc:2,type:'mc',q:'公告金額以上之採購，招標公告應刊登於何處？',opts:['政府公報','政府採購公報','機關網站即可','廠商自行取得'],ans:1,ref:'第27條：應將招標公告刊登於政府採購公報並公開於資訊網路。',law:27},
+{sc:2,type:'mc',q:'機關辦理採購底價，應由何人核定？',opts:['承辦人員','機關首長或其授權人員','監辦人員','上級機關'],ans:1,ref:'第46條：底價應由機關首長或其授權人員核定。',law:46},
+{sc:2,type:'mc',q:'採最有利標決標時，評選委員會委員人數最少應為幾人？',opts:['三人','五人','七人','九人'],ans:1,ref:'第54條：評選委員會委員人數，應為五人以上。',law:54},
+{sc:2,type:'mc',q:'最有利標評選委員會中，具相關專業知識委員人數不得少於幾分之幾？',opts:['四分之一','三分之一','二分之一','三分之二'],ans:1,ref:'第54條：具有與採購標的相關專業知識之委員人數，不得少於三分之一。',law:54},
+{sc:2,type:'mc',q:'廠商得標後拒不簽約，機關得採何措施？',opts:['強制簽約','沒入押標金','要求次低標簽約','重新招標'],ans:1,ref:'第60條：廠商拒絕依招標文件規定簽訂契約者，機關得沒入其押標金。',law:60},
+{sc:2,type:'mc',q:'押標金最高不逾預算金額或預估採購總額之多少？',opts:['百分之三','百分之五','百分之十','百分之十五'],ans:1,ref:'第30條：押標金之金額，以不逾預算金額或預估採購總額之百分之五為原則。',law:30},
+{sc:2,type:'mc',q:'依第98條，得標廠商於國內員工總人數逾多少人者應僱用身心障礙者？',opts:['五十人','一百人','一百五十人','二百人'],ans:1,ref:'第98條：得標廠商其於國內員工總人數逾一百人者，應於履約期間僱用身心障礙者及原住民。',law:98},
+{sc:2,type:'mc',q:'下列何種情形屬於財物採購？',opts:['道路新建工程','法律諮詢服務','辦公室桌椅採購','建築設計服務'],ans:2,ref:'第7條：財物指各種物品、材料、設備等有形物品，辦公室桌椅屬財物採購。',law:7},
+{sc:2,type:'mc',q:'統包採購係指設計與施工等併於同一採購契約辦理，其法源為何條？',opts:['第22條','第24條','第25條','第36條'],ans:1,ref:'第24條：統包係指將工程或財物採購中之設計與施工、供應、安裝或一定期間之維修等併於同一採購契約辦理招標。',law:24},
+{sc:2,type:'mc',q:'共同供應契約採購的辦理機關為何？',opts:['各機關自行辦理','主管機關及直轄市、縣市政府','行政院核准','財政部'],ans:1,ref:'第23條：主管機關及直轄市、縣（市）政府得辦理共同供應契約採購，供各機關使用。',law:23},
+{sc:2,type:'mc',q:'招標文件技術規格，不得要求特定商標，但在何種情形下可例外？',opts:['機關有特殊需要時','已於文件內註明「或同等品」時','廠商要求時','上級機關核准時'],ans:1,ref:'第26條：已在招標文件內註明諸如「或同等品」字樣者，不在此限。',law:26},
+{sc:2,type:'mc',q:'機關辦理採購，廠商未符合資格規定，其投標應如何處理？',opts:['仍予受理但不決標','不予受理','補正後受理','由機關裁量'],ans:1,ref:'第37條：投標廠商未符合第36條所定資格者，其投標不予受理。',law:37},
+{sc:2,type:'mc',q:'廠商對招標文件內容有疑義，應於何時提出？',opts:['招標文件規定之日期前','開標前任何時間','投標截止日前','開標後三日內'],ans:0,ref:'第41條：應於招標文件規定之日期前，以書面向招標機關提出。',law:41},
+{sc:2,type:'mc',q:'選擇性招標合格廠商名單有效期間不得逾幾年？',opts:['一年','二年','三年','五年'],ans:2,ref:'第21條：有效期間不得逾三年，期滿前得予以更新。',law:21},
+{sc:2,type:'mc',q:'機關辦理採購，得不訂底價之情形不包含下列何者？',opts:['訂定底價確有困難之複雜案件','以最有利標決標之採購','小額採購','公告金額以上工程採購'],ans:3,ref:'第47條：得不訂底價之情形為特殊複雜案件、最有利標採購、小額採購，不包含一般公告金額以上工程採購。',law:47},
+{sc:2,type:'mc',q:'底價應在何時對外保密？',opts:['開標前','開標前及開標後至決標前','決標前','決標後'],ans:1,ref:'第46條：底價於開標前應保密，於開標後至決標前，仍應保密。',law:46},
+{sc:2,type:'mc',q:'依第102條，廠商對第101條通知不服，得於接獲通知次日起幾日內提出異議？',opts:['十日','十五日','二十日','三十日'],ans:2,ref:'第102條：得於接獲通知之次日起二十日內，以書面向該機關提出異議。',law:102},
+{sc:2,type:'tf',q:'廠商聯合投標得標後，各廠商應就履約事項連帶負責。',ans:true,ref:'第25條：以主辦廠商為代表，就履約事項連帶負責。',law:25},
+{sc:2,type:'tf',q:'採最有利標決標，評選委員會技術委員應不少於三分之一。',ans:true,ref:'第54條：具有相關專業知識之委員人數，不得少於三分之一。',law:54},
+{sc:2,type:'tf',q:'底價應在開標後至決標前公開，以利競爭。',ans:false,ref:'第46條：底價於開標前應保密，於開標後至決標前，仍應保密。',law:46},
+{sc:2,type:'tf',q:'廠商履約遲延，機關得依契約計收遲延違約金。',ans:true,ref:'採購契約範本規定：廠商履約遲延，機關得依契約計收遲延違約金。',law:null},
+{sc:2,type:'tf',q:'機關發現廠商圍標，得直接決標給最低標廠商。',ans:false,ref:'第48條：機關認為有廢標之必要者，應予廢標，並得移送相關單位處理。',law:48},
+{sc:2,type:'tf',q:'押標金可以銀行開具之見票即付保付支票繳納。',ans:true,ref:'第30條：廠商得以銀行開具之見票即付保付支票等方式繳納押標金。',law:30},
+{sc:2,type:'tf',q:'統包採購可以將設計與施工合併於同一採購契約辦理招標。',ans:true,ref:'第24條：統包係指將工程或財物採購中之設計與施工等併於同一採購契約辦理招標。',law:24},
+{sc:2,type:'tf',q:'採購契約不得訂明物價指數調整條款。',ans:false,ref:'第63條及採購契約範本規定，採購契約得訂明物價指數調整條款，以反映成本變動。',law:63},
+{sc:2,type:'tf',q:'機關辦理採購，得不訂底價之情形包括以最有利標決標之採購。',ans:true,ref:'第47條：以最有利標決標之採購，得不訂底價。',law:47},
+{sc:2,type:'tf',q:'廠商借用他人名義投標，停權期間為一年。',ans:false,ref:'第103條：有第一百零一條第一款至第五款情形（含借用他人名義），停權期間為三年。',law:103},
+{sc:2,type:'tf',q:'招標文件中技術規格，不得要求特定商標，即使加註「或同等品」亦不可。',ans:false,ref:'第26條：已在招標文件內註明「或同等品」字樣者，不在此限。',law:26},
+{sc:2,type:'tf',q:'共同供應契約採購由主管機關及直轄市、縣（市）政府辦理。',ans:true,ref:'第23條：主管機關及直轄市、縣（市）政府得辦理共同供應契約採購。',law:23},
+{sc:2,type:'tf',q:'廠商對招標文件有疑義，可於開標後提出。',ans:false,ref:'第41條：應於招標文件規定之日期前，以書面向招標機關提出。',law:41},
+{sc:2,type:'tf',q:'選擇性招標合格廠商名單有效期間不得逾三年。',ans:true,ref:'第21條：有效期間不得逾三年，期滿前得予以更新。',law:21},
+{sc:2,type:'tf',q:'廠商得標後拒絕簽約，機關得沒入押標金。',ans:true,ref:'第60條：廠商拒絕依招標文件規定簽訂契約，機關得沒入其押標金。',law:60},
+{sc:2,type:'tf',q:'廠商可於開標前，向機關或評選委員行求期約。',ans:false,ref:'第42條：廠商於開標前，不得向機關或評選委員行求期約或交付不正利益。',law:42},
+{sc:2,type:'tf',q:'機關辦理採購得委託具有專業能力之法人或團體代辦招標、評選及決標。',ans:true,ref:'第39條：機關辦理採購，得依本法規定，委託具有專業能力之法人或團體，代辦招標、評選及決標等事項。',law:39},
+{sc:2,type:'tf',q:'分包廠商就其分包部分，與得標廠商連帶負瑕疵擔保責任。',ans:true,ref:'第67條：分包廠商就其分包之部分，與得標廠商連帶負瑕疵擔保責任。',law:67},
+{sc:3,type:'mc',q:'廠商與機關間關於招標、審標、決標之爭議，依採購法得提出何種救濟？',opts:['直接向法院提訴','依本法提出異議及申訴','向監察院陳情','向主管機關申訴'],ans:1,ref:'第74條：廠商與機關間關於招標、審標、決標之爭議，得依本章規定提出異議及申訴。',law:74},
+{sc:3,type:'mc',q:'廠商對機關之異議決定不服，得向何機關申訴？',opts:['法院','採購申訴審議委員會','主管機關','監察院'],ans:1,ref:'第76條：廠商對異議處理結果不服，得向採購申訴審議委員會申訴。',law:76},
+{sc:3,type:'mc',q:'機關與廠商因履約爭議，得申請何機關調解？',opts:['法院','採購申訴審議委員會','工程會','仲裁機構'],ans:1,ref:'第85條：機關與廠商因履約爭議，得向採購申訴審議委員會申請調解。',law:85},
+{sc:3,type:'mc',q:'採購契約爭議，廠商得採取何種非訴訟方式解決？',opts:['行政訴訟','向行政院陳情','調解或仲裁','申請停工'],ans:2,ref:'第85條：機關與廠商因履約爭議，得申請調解或提付仲裁，以替代訴訟。',law:85},
+{sc:3,type:'mc',q:'廠商提出申訴，採購申訴審議委員會應於收受申訴書後幾個工作日內完成審議？',opts:['二十個工作日','三十個工作日','四十個工作日','六十個工作日'],ans:2,ref:'第79條：應於收受申訴書之次日起四十個工作日內，完成審議。',law:79},
+{sc:3,type:'mc',q:'廠商對招標文件規定提出異議，其期限為何？',opts:['等標期四分之一','自公告次日起十日','截止投標前五日','開標前一日'],ans:0,ref:'第75條：為自公告或邀標之次日起等標期之四分之一，其日數不足五日者，以五日計。',law:75},
+{sc:3,type:'mc',q:'採購申訴審議委員會置委員幾人？',opts:['三人至七人','五人至十五人','七人至二十五人','十人至三十人'],ans:2,ref:'第86條：採購申訴審議委員會置委員七人至二十五人。',law:86},
+{sc:3,type:'mc',q:'廠商對機關依第101條所為通知不實者，得於接獲通知次日起幾日內提出異議？',opts:['十日','十五日','二十日','三十日'],ans:2,ref:'第102條：得於接獲通知之次日起二十日內，以書面向該機關提出異議。',law:102},
+{sc:3,type:'mc',q:'廠商履約爭議調解成立後，其效力為何？',opts:['視為行政處分','視同訴願決定','視為當事人間之和解','視同法院判決'],ans:2,ref:'第85條：因前項調解成立，視為當事人間之和解。',law:85},
+{sc:3,type:'mc',q:'機關辦理採購，廠商犯圍標罪施強暴脅迫，可處最高幾年有期徒刑？',opts:['三年','五年','七年','十年'],ans:2,ref:'第87條：施強暴、脅迫、藥劑或催眠術者，處一年以上七年以下有期徒刑。',law:87},
+{sc:3,type:'tf',q:'廠商應先向招標機關提出異議，對異議決定不服方得向採審會申訴。',ans:true,ref:'第74~76條：應先依第75條向招標機關提出異議，對處理結果不服方可向採購申訴審議委員會申訴。',law:75},
+{sc:3,type:'tf',q:'採購履約爭議，廠商得申請採購申訴審議委員會調解。',ans:true,ref:'第85條：機關與廠商因履約爭議，得向採購申訴審議委員會申請調解。',law:85},
+{sc:3,type:'tf',q:'廠商得標後拒絕簽約，機關得沒入押標金。',ans:true,ref:'第60條：廠商拒絕依招標文件規定簽訂契約，機關得沒入其押標金。',law:60},
+{sc:3,type:'tf',q:'採購申訴審議委員會的審議判斷僅供機關參考，無拘束力。',ans:false,ref:'第83條：審議判斷視同訴願決定，對招標機關有拘束力。',law:83},
+{sc:3,type:'tf',q:'履約爭議只能透過法院訴訟解決，不得申請仲裁。',ans:false,ref:'第85條：履約爭議得採調解、仲裁或訴訟等多種方式解決。',law:85},
+{sc:3,type:'tf',q:'廠商對採購過程結果提出異議，期限為接獲通知之次日起十日內。',ans:true,ref:'第75條：對採購之過程、結果提出異議者，為接獲機關通知或公告之次日起十日內。',law:75},
+{sc:3,type:'tf',q:'廠商應於知悉採購爭議後七日內提出異議。',ans:false,ref:'第75條：對採購之過程、結果提出異議，為接獲通知次日起十日內。',law:75},
+{sc:3,type:'tf',q:'採購契約爭議可以仲裁方式替代訴訟解決。',ans:true,ref:'第85條：廠商得向採購申訴審議委員會申請調解，或依契約規定提付仲裁。',law:85},
+{sc:3,type:'tf',q:'採購申訴審議委員會委員任期二年，連任不得逾三屆。',ans:true,ref:'第86條：委員任期二年，連任不得逾三屆。',law:86},
+{sc:3,type:'tf',q:'廠商對機關依第101條所為通知不服，得於接獲通知後三十日內提出異議。',ans:false,ref:'第102條：得於接獲通知之次日起二十日內，以書面向該機關提出異議。',law:102},
+];
+
+const SECTIONS=[
+  {id:1,name:'採購法規',tfCount:20,mcCount:18,tfPts:2,mcPts:5},
+  {id:2,name:'採購實務',tfCount:20,mcCount:18,tfPts:2,mcPts:5},
+  {id:3,name:'履約爭議',tfCount:10,mcCount:10,tfPts:2,mcPts:5},
+];
+const MODES={full:{ratio:1},half:{ratio:.5},quick:{ratio:.3125}};
+
+// ════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════
+let favorites=new Set(), recentOpened=[], activeChapter='全部';
+let examMode='half', examQs=[], examAnswers=[], examSubmitted=false;
+let wbTab='all', wbQty=10, wrongBook=new Map();
+let pendingMasteredKeys=[];
+let favFilter='';
+
+const PAGE_TITLES={law:['條文查詢','共 114 條'],quiz:['模擬考試','正式考試規格'],wrong:['錯題複習','自動記錄學習弱點'],fav:['收藏條文','依條號排序'],update:['更新資訊','採購法修正動態']};
+
+// ════════════════════════════════════════════
+// NAV
+// ════════════════════════════════════════════
+function showPage(p){
+  document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('nb-'+p).classList.add('active');
+  const t=PAGE_TITLES[p]||['',''];
+  document.getElementById('topbar-title').textContent=t[0];
+  document.getElementById('topbar-sub').textContent=t[1];
+  if(p==='fav') renderFav();
+  if(p==='wrong') renderWrong();
+  updateTopbarStats();
+}
+
+function updateTopbarStats(){
+  document.getElementById('fav-count').textContent=favorites.size;
+  const wb=[...wrongBook.values()];
+  document.getElementById('wrong-count').textContent=wb.filter(w=>!w.mastered).length;
+  document.getElementById('mastered-count').textContent=wb.filter(w=>w.mastered).length;
+}
+
+// ════════════════════════════════════════════
+// LAW PAGE
+// ════════════════════════════════════════════
+function setChapter(btn,ch){
+  document.querySelectorAll('#ch-filters .chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');activeChapter=ch;filterArts();
+}
+function filterArts(){
+  const kw=document.getElementById('law-search').value.trim().toLowerCase();
+  const list=document.getElementById('art-list');list.innerHTML='';
+  const filtered=ARTS.filter(a=>{
+    const mc=activeChapter==='全部'||a.ch===activeChapter;
+    const mk=!kw||String(a.num).includes(kw)||a.title.includes(kw)||a.text.includes(kw);
+    return mc&&mk;
+  });
+  if(!filtered.length){list.innerHTML='<div class="empty-state">🔍 找不到符合條文</div>';return;}
+  filtered.forEach(a=>{
+    const isFav=favorites.has(a.num);
+    const div=document.createElement('div');div.className='art-card';div.id='art-'+a.num;
+    div.innerHTML=`<div class="art-card-hdr" onclick="toggleArt(${a.num})">
+      <span class="art-num-badge">第${a.num}條</span>
+      <div class="art-info"><div class="art-title-sm">${a.title}</div><div class="art-snip">${a.text.replace(/\n/g,' ').slice(0,40)}…</div></div>
+      <div class="art-card-actions">
+        <button class="fav-btn" onclick="toggleFav(event,${a.num})">${isFav?'⭐':'☆'}</button>
+        <svg class="chv" id="chv-${a.num}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div></div>
+      <div class="art-card-body" id="body-${a.num}">
+        <span class="ch-tag">${a.ch}</span>
+        <div class="art-full-title">${a.title}</div>
+        <div class="art-text">${a.text}</div>
+        ${a.subs.length?'<div class="sub-list">'+a.subs.map((s,i)=>`<div class="sub-item">${i+1}. ${s}</div>`).join('')+'</div>':''}
+      </div>`;
+    list.appendChild(div);
+  });
+}
+function toggleArt(num){
+  const body=document.getElementById('body-'+num);
+  const chv=document.getElementById('chv-'+num);
+  const wasOpen=body.classList.contains('open');
+  body.classList.toggle('open');
+  if(chv)chv.classList.toggle('open',!wasOpen);
+  if(!wasOpen){
+    const a=ARTS.find(x=>x.num===num);
+    if(a)recentOpened=[a,...recentOpened.filter(x=>x.num!==num)].slice(0,8);
+  }
+}
+function toggleFav(e,num){
+  e.stopPropagation();
+  if(favorites.has(num))favorites.delete(num);else favorites.add(num);
+  filterArts();updateTopbarStats();
+}
+
+// ════════════════════════════════════════════
+// EXAM
+// ════════════════════════════════════════════
+function setMode(btn,m){
+  document.querySelectorAll('.mode-opt').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');examMode=m;
+}
+function shuffle(arr){return [...arr].sort(()=>Math.random()-.5)}
+function calcMaxScore(){const r=MODES[examMode].ratio;return SECTIONS.reduce((s,sc)=>s+Math.round(sc.tfCount*r)*sc.tfPts+Math.round(sc.mcCount*r)*sc.mcPts,0)}
+function scoreForQ(q,ans){if(ans===null||ans===undefined)return 0;const sc=SECTIONS.find(s=>s.id===q.sc);return(ans===q.ans)?(q.type==='tf'?sc.tfPts:sc.mcPts):0}
+function calcLive(){return examQs.reduce((s,q,i)=>s+scoreForQ(q,examAnswers[i]),0)}
+function calcPassLine(){return Math.round(calcMaxScore()*0.7)}
+function qKey(q){return q.sc+'|'+q.q.slice(0,20)}
+
+function startExam(){
+  const r=MODES[examMode].ratio;
+  examQs=[];
+  SECTIONS.forEach(sc=>{
+    const tfPool=QBANK.filter(q=>q.sc===sc.id&&q.type==='tf');
+    const mcPool=QBANK.filter(q=>q.sc===sc.id&&q.type==='mc');
+    shuffle(tfPool).slice(0,Math.round(sc.tfCount*r)).forEach(q=>examQs.push({...q}));
+    shuffle(mcPool).slice(0,Math.round(sc.mcCount*r)).forEach(q=>examQs.push({...q}));
+  });
+  examAnswers=new Array(examQs.length).fill(null);
+  examSubmitted=false;
+  document.getElementById('q-start').style.display='none';
+  document.getElementById('q-result').style.display='none';
+  document.getElementById('q-exam').style.display='block';
+  renderExamQs();updateExamHeader();
+}
+
+function renderExamQs(){
+  const c=document.getElementById('exam-qs');c.innerHTML='';
+  let prevSc=0,prevType='';
+  examQs.forEach((q,i)=>{
+    const sc=SECTIONS.find(s=>s.id===q.sc);
+    if(q.sc!==prevSc||q.type!==prevType){
+      const bcls=['sc1','sc2','sc3'][q.sc-1];
+      c.insertAdjacentHTML('beforeend',`<div class="section-hdr-bar"><span class="sc-pill ${bcls}">第${q.sc}科</span><span class="section-hdr-name">${sc.name}</span><span class="type-note">${q.type==='tf'?'是非題 '+sc.tfPts+'分/題':'選擇題 '+sc.mcPts+'分/題'}</span></div>`);
+      prevSc=q.sc;prevType=q.type;
+    }
+    const pts=q.type==='tf'?sc.tfPts:sc.mcPts;
+    const ua=examAnswers[i];const s=examSubmitted;
+    const div=document.createElement('div');div.className='q-card';div.id='qc-'+i;
+    if(q.type==='tf'){
+      div.innerHTML=`<div class="q-meta"><span class="q-idx">第 ${i+1} 題</span><span class="q-pts-tag">${pts} 分</span><span class="q-type-tag">是非題</span></div>
+        <div class="q-text">${q.q}</div>
+        <div class="tf-row">
+          <button class="tf-btn ${!s&&ua===true?'sel':''} ${s?(true===q.ans?'correct':(ua===true?'wrong':'')):''}
+          " onclick="ansQ(${i},true)" ${s?'disabled':''}>◯ 正確</button>
+          <button class="tf-btn ${!s&&ua===false?'sel':''} ${s?(false===q.ans?'correct':(ua===false?'wrong':'')):''}
+          " onclick="ansQ(${i},false)" ${s?'disabled':''}>✕ 錯誤</button>
+        </div>
+        <div class="q-ref ${s?'show':''}">${q.ref}${q.law?`<br><span class="ref-link" onclick="goLaw(${q.law})">→ 前往第${q.law}條全文</span>`:''}
+        </div>`;
+    }else{
+      div.innerHTML=`<div class="q-meta"><span class="q-idx">第 ${i+1} 題</span><span class="q-pts-tag">${pts} 分</span><span class="q-type-tag">選擇題</span></div>
+        <div class="q-text">${q.q}</div>
+        <div class="q-opts-grid">${q.opts.map((o,oi)=>`<button class="q-opt ${!s&&ua===oi?'sel':''} ${s?(oi===q.ans?'correct':(ua===oi?'wrong':'')):''}
+        " onclick="ansQ(${i},${oi})" ${s?'disabled':''}><span class="q-opt-ltr">${String.fromCharCode(65+oi)}</span><span>${o}</span></button>`).join('')}</div>
+        <div class="q-ref ${s?'show':''}">${q.ref}${q.law?`<br><span class="ref-link" onclick="goLaw(${q.law})">→ 前往第${q.law}條全文</span>`:''}
+        </div>`;
+    }
+    c.appendChild(div);
+  });
+}
+
+function updateExamHeader(){
+  const ans=examAnswers.filter(a=>a!==null).length;
+  const pct=examQs.length?ans/examQs.length*100:0;
+  document.getElementById('ep-fill').style.width=pct+'%';
+  document.getElementById('ep-txt').textContent=`作答進度 ${ans} / ${examQs.length} 題`;
+  document.getElementById('escore-num').textContent=`${calcLive()} / ${calcMaxScore()}`;
+}
+
+function ansQ(i,val){
+  if(examSubmitted)return;
+  examAnswers[i]=val;updateExamHeader();
+  const card=document.getElementById('qc-'+i);const q=examQs[i];
+  if(q.type==='tf'){card.querySelectorAll('.tf-btn').forEach((b,bi)=>{b.classList.remove('sel');if((bi===0&&val===true)||(bi===1&&val===false))b.classList.add('sel');});}
+  else{card.querySelectorAll('.q-opt').forEach((b,bi)=>{b.classList.remove('sel');if(bi===val)b.classList.add('sel');});}
+}
+
+function submitExam(){
+  const ua=examAnswers.filter(a=>a===null).length;
+  if(ua>0&&!confirm(`尚有 ${ua} 題未作答，確定交卷嗎？`))return;
+  examSubmitted=true;
+  examQs.forEach((q,i)=>{
+    const k=qKey(q);const correct=examAnswers[i]===q.ans;
+    if(!correct){const prev=wrongBook.get(k)||{q:{...q},errCount:0,mastered:false,important:false,lastWrongAns:null};wrongBook.set(k,{...prev,errCount:prev.errCount+1,mastered:false,lastWrongAns:examAnswers[i]});}
+  });
+  updateWrongBadge();updateTopbarStats();
+  document.getElementById('q-exam').style.display='none';
+  showResult();
+}
+
+function updateWrongBadge(){
+  const n=[...wrongBook.values()].filter(w=>!w.mastered).length;
+  const badge=document.getElementById('wrong-badge');
+  if(n>0){badge.style.display='flex';badge.textContent=n>99?'99+':n;}else badge.style.display='none';
+}
+
+function backToStart(){
+  document.getElementById('q-exam').style.display='none';
+  document.getElementById('q-result').style.display='none';
+  document.getElementById('q-start').style.display='block';
+}
+
+function showResult(){
+  document.getElementById('q-result').style.display='block';
+  const maxScore=calcMaxScore(),passLine=calcPassLine(),total=calcLive();
+  const passed=total>=passLine,pct=Math.round(total/maxScore*100);
+  const circ=2*Math.PI*62;
+  const fill=document.getElementById('rc-fill');
+  fill.setAttribute('stroke-dasharray',circ);
+  setTimeout(()=>{fill.style.strokeDashoffset=circ*(1-pct/100);},100);
+  fill.className='rc-fill'+(passed?'':' fail');
+  document.getElementById('rb-score').textContent=total+'/'+maxScore;
+  document.getElementById('rb-pct').textContent=pct+'%';
+  const vp=document.getElementById('rv-pill');
+  vp.textContent=passed?'合格 ✓':'不合格 ✗';vp.className='verdict-pill '+(passed?'pass':'fail');
+  const correct=examQs.filter((q,i)=>examAnswers[i]===q.ans).length;
+  document.getElementById('rb-stats').innerHTML=`<div class="rst"><div class="rst-val">${correct}</div><div class="rst-lbl">答對題數</div></div><div class="rst"><div class="rst-val">${examQs.length-correct}</div><div class="rst-lbl">答錯題數</div></div><div class="rst"><div class="rst-val">${passLine}</div><div class="rst-lbl">及格分數</div></div>`;
+  const secsEl=document.getElementById('rsecs');secsEl.innerHTML='';
+  SECTIONS.forEach(sc=>{
+    const qs=examQs.filter(q=>q.sc===sc.id);if(!qs.length)return;
+    const scScore=qs.reduce((s,q)=>s+scoreForQ(q,examAnswers[examQs.indexOf(q)]),0);
+    const scMax=qs.reduce((s,q)=>s+(q.type==='tf'?sc.tfPts:sc.mcPts),0);
+    const scPct=scMax?scScore/scMax:0;const bcls=['sc1','sc2','sc3'][sc.id-1];
+    const div=document.createElement('div');div.className='sec-score-card';
+    div.innerHTML=`<div class="sec-score-row"><div style="display:flex;align-items:center;gap:8px"><span class="sc-pill ${bcls}">第${sc.id}科</span><span style="font-size:13px;font-weight:700">${sc.name}</span></div><span class="sec-score-val ${scScore===0?'zero':''}">${scScore}/${scMax} <small style="font-size:11px;color:var(--text-3)">${Math.round(scPct*100)}%</small></span></div><div class="pbar"><div class="pbar-fill ${scPct>=.7?'pbar-pass':'pbar-fail'}" style="width:${Math.round(scPct*100)}%"></div></div>${scScore===0?'<div class="zero-warn">⚠️ 本科零分 — 即使總分及格仍判定不合格</div>':''}`;
+    secsEl.appendChild(div);
+  });
+  document.getElementById('rreview').innerHTML=examQs.map((q,i)=>{
+    const ua=examAnswers[i];const ok=ua===q.ans;
+    const sc=SECTIONS.find(s=>s.id===q.sc);
+    const pts=scoreForQ(q,ua);const maxPts=q.type==='tf'?sc.tfPts:sc.mcPts;
+    const ansText=q.type==='tf'?(ua===null?'未作答':ua?'◯ 正確':'✕ 錯誤'):(ua===null?'未作答':String.fromCharCode(65+ua)+'. '+q.opts[ua]);
+    const corrText=q.type==='tf'?(q.ans?'◯ 正確':'✕ 錯誤'):(String.fromCharCode(65+q.ans)+'. '+q.opts[q.ans]);
+    return `<div class="review-card"><div class="review-status ${ok?'ok':'ng'}">${ok?'✔ 答對':'✘ 答錯'} — 第${i+1}題 ${pts}/${maxPts}分</div><div class="review-q">${q.q}</div><div class="review-ans">您的答案：<span style="color:${ok?'var(--green)':'var(--red)'};font-weight:700">${ansText}</span>　正確答案：<span style="color:var(--green);font-weight:700">${corrText}</span></div><div class="review-ref">${q.ref}${q.law?`<br><span class="ref-link" onclick="goLaw(${q.law})">→ 前往第${q.law}條</span>`:''}</div></div>`;
+  }).join('');
+  const correctPrevWrong=examQs.filter((q,i)=>{const k=qKey(q);const wb=wrongBook.get(k);return wb&&!wb.mastered&&examAnswers[i]===q.ans;});
+  if(correctPrevWrong.length>0)setTimeout(()=>showMasteredModal(correctPrevWrong),700);
+}
+
+// ════════════════════════════════════════════
+// WRONG BOOK
+// ════════════════════════════════════════════
+function setWbTab(btn,tab){
+  document.querySelectorAll('.wb-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');wbTab=tab;renderWrong();
+}
+function setWbQty(btn,n){
+  document.querySelectorAll('.wb-qty-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');wbQty=n;
+}
+function getWbFiltered(){
+  const all=[...wrongBook.values()];
+  if(wbTab==='unmastered')return all.filter(w=>!w.mastered);
+  if(wbTab==='mastered')return all.filter(w=>w.mastered);
+  if(wbTab==='important')return all.filter(w=>w.important);
+  return all;
+}
+function renderWrong(){
+  const all=[...wrongBook.values()];
+  const unm=all.filter(w=>!w.mastered),mas=all.filter(w=>w.mastered),imp=all.filter(w=>w.important);
+  document.getElementById('wt-all-n').textContent='('+all.length+')';
+  document.getElementById('wt-um-n').textContent='('+unm.length+')';
+  document.getElementById('wt-m-n').textContent='('+mas.length+')';
+  document.getElementById('wt-imp-n').textContent='('+imp.length+')';
+  const wf=getWbFiltered();
+  document.getElementById('wb-qty-all-n').textContent=wf.filter(w=>!w.mastered).length||'—';
+  document.getElementById('wb-stats-grid').innerHTML=`<div class="wb-stat"><div class="wb-stat-val blue">${all.length}</div><div class="wb-stat-lbl">累計錯題</div></div><div class="wb-stat"><div class="wb-stat-val red">${unm.length}</div><div class="wb-stat-lbl">未掌握</div></div><div class="wb-stat"><div class="wb-stat-val green">${mas.length}</div><div class="wb-stat-lbl">已掌握</div></div><div class="wb-stat"><div class="wb-stat-val" style="color:var(--amber)">${imp.length}</div><div class="wb-stat-lbl">重要</div></div>`;
+  const list=document.getElementById('wb-list');
+  if(!wf.length){list.innerHTML=`<div class="wb-empty">${all.length===0?'🎉 尚無錯題記錄<br>完成模擬考試後，答錯的題目會出現在這裡':'📭 此分類無題目'}</div>`;return;}
+  list.innerHTML='';
+  wf.forEach(w=>{
+    const k=qKey(w.q);const q=w.q;
+    const corrText=q.type==='tf'?(q.ans?'◯ 正確':'✕ 錯誤'):(String.fromCharCode(65+q.ans)+'. '+q.opts[q.ans]);
+    const sc=SECTIONS.find(s=>s.id===q.sc);const bcls=['sc1','sc2','sc3'][q.sc-1];
+    const div=document.createElement('div');div.className='wq-card'+(w.mastered?' mastered':'')+(w.important?' important':'');
+    div.innerHTML=`<div class="wq-meta-row"><span class="sc-pill ${bcls}" style="font-size:10px">${sc.name}</span><span class="wq-err-tag">錯誤次數：${w.errCount}</span><button class="wq-star-btn" onclick="toggleImportant('${k}')">${w.important?'⭐':'☆'}</button></div><div class="wq-q">${q.q}</div><div class="wq-correct-ans">正確答案：<span class="wq-correct-txt">${corrText}</span></div>${w.mastered?'<div class="mastered-tag">✓ 已掌握</div>':''}${q.law?`<div><span class="ref-link" onclick="goLaw(${q.law})" style="margin-top:6px">→ 前往第${q.law}條</span></div>`:''}`;
+    list.appendChild(div);
+  });
+}
+function toggleImportant(k){const w=wrongBook.get(k);if(w){wrongBook.set(k,{...w,important:!w.important});renderWrong();}}
+function startWbExam(){
+  const filtered=getWbFiltered().filter(w=>!w.mastered);
+  if(!filtered.length){alert('此分類沒有可練習的題目！');return;}
+  const n=wbQty||filtered.length;
+  examQs=shuffle(filtered).slice(0,n).map(w=>({...w.q}));
+  examAnswers=new Array(examQs.length).fill(null);
+  examSubmitted=false;examMode='quick';
+  showPage('quiz');
+  document.getElementById('q-start').style.display='none';
+  document.getElementById('q-result').style.display='none';
+  document.getElementById('q-exam').style.display='block';
+  renderExamQs();updateExamHeader();
+}
+function showMasteredModal(qs){
+  pendingMasteredKeys=qs.map(q=>qKey(q));
+  document.getElementById('modal-desc').innerHTML=`您已答對了 <strong>${qs.length}</strong> 道錯題<br>是否將這些題目標記為「已掌握」？<br><small style="color:var(--text-3)">已掌握的題目不會出現在未掌握分類中</small>`;
+  document.getElementById('modal-confirm-btn').onclick=confirmMastered;
+  document.getElementById('mastered-modal').classList.add('show');
+}
+function closeMasteredModal(){document.getElementById('mastered-modal').classList.remove('show');}
+function confirmMastered(){
+  pendingMasteredKeys.forEach(k=>{const w=wrongBook.get(k);if(w)wrongBook.set(k,{...w,mastered:true});});
+  updateWrongBadge();updateTopbarStats();closeMasteredModal();
+}
+
+// ════════════════════════════════════════════
+// FAV
+// ════════════════════════════════════════════
+function filterFav(v){favFilter=v.toLowerCase();renderFav();}
+function renderFav(){
+  const recEl=document.getElementById('fav-recent');
+  recEl.innerHTML=recentOpened.length?recentOpened.map(a=>`<div class="recent-item" onclick="goLaw(${a.num})"><span class="recent-item-num">第${a.num}條</span><span class="recent-item-title">${a.title}</span></div>`).join(''):'<div style="font-size:12px;color:var(--text-3)">尚無最近開啟記錄</div>';
+  const list=document.getElementById('fav-list');
+  const sorted=ARTS.filter(a=>favorites.has(a.num)).sort((x,y)=>x.num-y.num).filter(a=>!favFilter||String(a.num).includes(favFilter)||a.title.includes(favFilter)||a.text.includes(favFilter));
+  document.getElementById('fav-count-label').textContent=favorites.size;
+  if(!sorted.length){list.innerHTML='<div class="empty-state">尚未收藏任何條文<br>在條文查詢頁點選 ☆ 加入收藏</div>';return;}
+  list.innerHTML='';
+  sorted.forEach(a=>{
+    const div=document.createElement('div');div.className='art-card';
+    div.innerHTML=`<div class="art-card-hdr" onclick="document.getElementById('fb-${a.num}').classList.toggle('open')">
+      <span class="art-num-badge">第${a.num}條</span>
+      <div class="art-info"><div class="art-title-sm">${a.title}</div><div class="art-snip">${a.text.replace(/\n/g,' ').slice(0,40)}…</div></div>
+      <div class="art-card-actions"><button class="fav-btn" onclick="event.stopPropagation();favorites.delete(${a.num});renderFav();filterArts();updateTopbarStats()">⭐</button><svg class="chv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div></div>
+      <div class="art-card-body" id="fb-${a.num}"><span class="ch-tag">${a.ch}</span><div class="art-full-title">${a.title}</div><div class="art-text">${a.text}</div>${a.subs.length?'<div class="sub-list">'+a.subs.map((s,i)=>`<div class="sub-item">${i+1}. ${s}</div>`).join('')+'</div>':''}</div>`;
+    list.appendChild(div);
+  });
+}
+
+// ════════════════════════════════════════════
+// UPDATES
+// ════════════════════════════════════════════
+document.getElementById('upd-list').innerHTML=[
+  {date:'2024-05-22',title:'政府採購法第22條修正',desc:'修正限制性招標適用情形，增列數位採購相關規定，擴充限制性招標適用範疇。',newTag:true,url:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=A0030057'},
+  {date:'2024-03-10',title:'採購法施行細則部分條文修正',desc:'調整公告金額門檻及相關程序規定，強化廠商保護機制。',newTag:false,url:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=A0030058'},
+  {date:'2023-11-15',title:'全國法規資料庫採購法條文更新',desc:'配合行政院政策調整履約管理相關條文，詳見全文。',newTag:false,url:'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=A0030057'},
+  {date:'2023-08-01',title:'工程會電子報：最有利標評選新規定',desc:'說明最有利標評選委員會組成新規定及常見問題解析。',newTag:false,url:'https://www.pcc.gov.tw'},
+].map(u=>`<div class="upd-card"><div class="upd-header"><span class="upd-date">${u.date}</span>${u.newTag?'<span class="upd-new-badge">新</span>':''}</div><div class="upd-title">${u.title}</div><div class="upd-desc">${u.desc}</div><a class="upd-link" href="${u.url}" target="_blank">→ 查看全文</a></div>`).join('');
+
+// ════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════
+function goLaw(num){
+  showPage('law');activeChapter='全部';
+  document.querySelectorAll('#ch-filters .chip').forEach((b,i)=>{i===0?b.classList.add('active'):b.classList.remove('active');});
+  document.getElementById('law-search').value=String(num);filterArts();
+  setTimeout(()=>{const el=document.getElementById('art-'+num);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});const body=document.getElementById('body-'+num);if(!body.classList.contains('open'))toggleArt(num);}},200);
+}
+
+// INIT
+filterArts();renderFav();updateWrongBadge();updateTopbarStats();
+</script>
+</body>
+</html>
