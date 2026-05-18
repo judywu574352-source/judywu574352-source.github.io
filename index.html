@@ -1613,6 +1613,69 @@
   .tool-card-badge::before{width:22px !important;margin:10px 2px 0 0 !important;}
   .featured-paid .paid-info h4::after{font-size:11px !important;}
 }
+
+
+/* ===== 2026-05-18 tool card usage counter + tag nowrap ===== */
+.tool-card-tags{
+  align-items:flex-start !important;
+}
+.tool-card-tag{
+  white-space:nowrap !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  flex:0 0 auto !important;
+  word-break:keep-all !important;
+}
+.tool-card-usage{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:0 0 18px;
+  padding:8px 10px;
+  border:1px solid rgba(139,90,60,.18);
+  background:rgba(250,247,242,.42);
+  color:var(--muted);
+  font-family:"JetBrains Mono",monospace;
+  line-height:1;
+}
+.tool-card-usage .usage-label{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.tool-card-usage .usage-label::before{
+  content:"";
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--accent);
+  opacity:.82;
+}
+.tool-card-usage strong{
+  color:var(--accent);
+  font-size:15px;
+  font-weight:500;
+  letter-spacing:.12em;
+  white-space:nowrap;
+}
+.tool-card.featured .tool-card-usage{
+  background:rgba(250,247,242,.36);
+  border-color:rgba(139,90,60,.28);
+}
+@media (max-width:900px){
+  .tool-card-tags{gap:7px !important;}
+  .tool-card-tag{font-size:12px !important;letter-spacing:.04em !important;}
+  .tool-card-usage{padding:8px 10px !important;margin-bottom:16px !important;}
+  .tool-card-usage .usage-label{font-size:11px !important;letter-spacing:.12em !important;}
+  .tool-card-usage strong{font-size:13px !important;}
+}
+
 </style>
 
 
@@ -1666,6 +1729,29 @@
 }
 </style>
 
+
+
+<!-- ===== 2026-05-18 tool tag single-line compact fix ===== -->
+<style>
+@media (min-width:901px){
+  .tool-card-tags{
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    align-items:center !important;
+    gap:6px !important;
+    max-width:100% !important;
+    margin-bottom:28px !important;
+  }
+  .tool-card-tag{
+    flex:0 0 auto !important;
+    white-space:nowrap !important;
+    font-size:19px !important; /* 約原本 24px 的 80% */
+    line-height:1.35 !important;
+    padding:4px 9px !important;
+    letter-spacing:.045em !important;
+  }
+}
+</style>
 </head>
 <body>
 <!-- HEADER -->
@@ -1922,7 +2008,8 @@
 <span class="tool-card-tag">簡報素材</span>
 <span class="tool-card-tag">局部擷取</span>
 </div>
-<a class="tool-card-action" href="photo-cutout.html">開啟工具 <span class="arr">→</span></a>
+<div class="tool-card-usage" data-tool-counter="image-cutout" data-seed="0"><span class="usage-label">Views</span><strong>0 USES</strong></div>
+<a class="tool-card-action" data-tool-id="image-cutout" href="photo-cutout.html">開啟工具 <span class="arr">→</span></a>
 </div>
 <div class="tool-card reveal d1">
 <div class="tool-card-badge"><span>FLOW</span><span>CHART</span></div>
@@ -1934,7 +2021,8 @@
 <span class="tool-card-tag">自動排版</span>
 <span class="tool-card-tag">流程圖</span>
 </div>
-<a class="tool-card-action" href="flowchart-maker.html">開啟工具 <span class="arr">→</span></a>
+<div class="tool-card-usage" data-tool-counter="flow-chart" data-seed="0"><span class="usage-label">Views</span><strong>0 USES</strong></div>
+<a class="tool-card-action" data-tool-id="flow-chart" href="flowchart-maker.html">開啟工具 <span class="arr">→</span></a>
 </div>
 <div class="tool-card reveal d2">
 <div class="tool-card-badge"><span>PHOTO</span><span>BOARD</span></div>
@@ -1946,7 +2034,8 @@
 <span class="tool-card-tag">自動置中</span>
 <span class="tool-card-tag">照片排版</span>
 </div>
-<a class="tool-card-action" href="photo-layout-board.html">開啟工具 <span class="arr">→</span></a>
+<div class="tool-card-usage" data-tool-counter="photo-board" data-seed="0"><span class="usage-label">Views</span><strong>0 USES</strong></div>
+<a class="tool-card-action" data-tool-id="photo-board" href="photo-layout-board.html">開啟工具 <span class="arr">→</span></a>
 </div>
 <div class="tool-card reveal">
 <div class="tool-card-badge"><span>OVERLAY</span><span>MAP</span></div>
@@ -1958,7 +2047,8 @@
 <span class="tool-card-tag">透明度</span>
 <span class="tool-card-tag">施工範圍</span>
 </div>
-<a class="tool-card-action" href="drawing-aerial-overlay.html">開啟工具 <span class="arr">→</span></a>
+<div class="tool-card-usage" data-tool-counter="overlay-map" data-seed="0"><span class="usage-label">Views</span><strong>0 USES</strong></div>
+<a class="tool-card-action" data-tool-id="overlay-map" href="drawing-aerial-overlay.html">開啟工具 <span class="arr">→</span></a>
 </div>
 <div class="tool-card reveal d1">
 <div class="tool-card-badge"><span>LAW</span><span>QUIZ</span></div>
@@ -1970,7 +2060,8 @@
 <span class="tool-card-tag">測驗練習</span>
 <span class="tool-card-tag">錯題複習</span>
 </div>
-<a class="tool-card-action" href="procurement-practice.html">開啟工具 <span class="arr">→</span></a>
+<div class="tool-card-usage" data-tool-counter="law-quiz" data-seed="0"><span class="usage-label">Views</span><strong>0 USES</strong></div>
+<a class="tool-card-action" data-tool-id="law-quiz" href="procurement-practice.html">開啟工具 <span class="arr">→</span></a>
 </div>
 <div class="tool-card featured reveal d2">
 <div class="tool-featured-label">NEW</div>
@@ -1983,7 +2074,8 @@
 <span class="tool-card-tag">貼紙配置</span>
 <span class="tool-card-tag">PNG 輸出</span>
 </div>
-<a class="tool-card-action" href="traffic-sticker-board.html">開啟工具 <span class="arr">→</span></a>
+<div class="tool-card-usage" data-tool-counter="traffic-layout" data-seed="0"><span class="usage-label">Views</span><strong>0 USES</strong></div>
+<a class="tool-card-action" data-tool-id="traffic-layout" href="traffic-sticker-board.html">開啟工具 <span class="arr">→</span></a>
 </div>
 </div>
 <!-- 收費程式下載區 -->
@@ -2117,6 +2209,35 @@
   document.addEventListener('click', (e) => {
     if (!floatNav.contains(e.target)) floatNav.classList.remove('open');
   });
+
+
+  // tool usage counter: local display + optional GA event if gtag is installed later
+  (function(){
+    const fmt = new Intl.NumberFormat('en-US');
+    document.querySelectorAll('[data-tool-counter]').forEach(box => {
+      const id = box.getAttribute('data-tool-counter');
+      const seed = Number(box.getAttribute('data-seed') || 0);
+      const local = Number(localStorage.getItem('xz_tool_' + id) || 0);
+      const total = seed + local;
+      const label = total === 0 ? '0 USES' : `${fmt.format(total)} USES`;
+      const strong = box.querySelector('strong');
+      if (strong) strong.textContent = label;
+    });
+    document.querySelectorAll('.tool-card-action[data-tool-id]').forEach(a => {
+      a.addEventListener('click', () => {
+        const id = a.getAttribute('data-tool-id');
+        const key = 'xz_tool_' + id;
+        const next = Number(localStorage.getItem(key) || 0) + 1;
+        localStorage.setItem(key, String(next));
+        if (window.gtag) {
+          window.gtag('event', 'tool_open', {
+            tool_id: id,
+            tool_name: a.closest('.tool-card')?.querySelector('h3')?.textContent?.trim() || id
+          });
+        }
+      });
+    });
+  })();
 </script>
 </body>
 </html>
