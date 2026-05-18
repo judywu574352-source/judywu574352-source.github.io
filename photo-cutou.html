@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>圖片去背工具｜襄澤專案顧問工作室</title>
+  <style>
+    :root {
+      --xz-bg: #f7f3ec;
+      --xz-paper: #fffaf2;
+      --xz-card: #ffffff;
+      --xz-ink: #2f2a24;
+      --xz-muted: #766b5f;
+      --xz-line: #e7dccb;
+      --xz-brown: #8b5e34;
+      --xz-brown-dark: #5c3a1e;
+      --xz-gold: #c49a5a;
+      --xz-soft: #efe4d3;
+      --xz-blue: #426b7a;
+      --xz-danger: #b54a3a;
+      --xz-success: #2f7d55;
+      --shadow-soft: 0 10px 28px rgba(80, 55, 31, 0.10);
+      --shadow-card: 0 6px 18px rgba(80, 55, 31, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(196,154,90,.18), transparent 28%),
+        radial-gradient(circle at 88% 8%, rgba(66,107,122,.12), transparent 24%),
+        linear-gradient(180deg, #fbf8f2 0%, var(--xz-bg) 100%);
+      color: var(--xz-ink);
+    }
+
+    .site-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .site-header {
+      padding: 18px 24px 14px;
+      border-bottom: 1px solid var(--xz-line);
+      background: rgba(255, 250, 242, .92);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 18px rgba(80, 55, 31, .06);
+      z-index: 20;
+    }
+
+    .brand-line {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--xz-brown);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .brand-kicker::before {
+      content: "";
+      width: 28px;
+      height: 2px;
+      border-radius: 99px;
+      background: var(--xz-gold);
+      display: inline-block;
+    }
+
+    .site-header h1 {
+      margin: 0;
+      font-size: clamp(24px, 2.2vw, 34px);
+      line-height: 1.2;
+      letter-spacing: .04em;
+      color: var(--xz-ink);
+    }
+
+    .header-subtitle {
+      margin: 8px 0 0;
+      color: var(--xz-muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .header-badge {
+      flex: 0 0 auto;
+      border: 1px solid rgba(139, 94, 52, .22);
+      background: linear-gradient(135deg, rgba(255,255,255,.88), rgba(239,228,211,.72));
+      color: var(--xz-brown-dark);
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: var(--shadow-card);
+      white-space: nowrap;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(390px, 430px) 1fr;
+      min-height: 0;
+      height: calc(100vh - 143px);
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      border-left: 1px solid rgba(231, 220, 203, .7);
+      border-right: 1px solid rgba(231, 220, 203, .7);
+      background: rgba(255,255,255,.36);
+    }
+
+    .sidebar {
+      background: rgba(255, 250, 242, .94);
+      border-right: 1px solid var(--xz-line);
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .panel {
+      border: 1px solid var(--xz-line);
+      border-radius: 18px;
+      padding: 13px;
+      margin-bottom: 12px;
+      background: rgba(255,255,255,.86);
+      box-shadow: var(--shadow-card);
+    }
+
+    .panel h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      letter-spacing: .04em;
+      color: var(--xz-brown-dark);
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    button, input[type="range"], input[type="file"], input[type="text"] {
+      width: 100%;
+    }
+
+    .row button {
+      width: auto;
+      flex: 1 1 calc(50% - 4px);
+      min-width: 0;
+    }
+
+    .row button:only-child {
+      flex-basis: 100%;
+    }
+
+    .row.primary-actions button:first-child {
+      flex-basis: 100%;
+    }
+
+    .tool-mode-row button {
+      min-height: 40px;
+    }
+
+
+    input[type="file"] {
+      padding: 10px;
+      border: 1px dashed rgba(139, 94, 52, .38);
+      border-radius: 12px;
+      background: #fffaf2;
+      color: var(--xz-muted);
+      font-size: 13px;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 12px;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--xz-brown), var(--xz-brown-dark));
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      box-shadow: 0 4px 10px rgba(92, 58, 30, .16);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+      box-shadow: 0 8px 18px rgba(92, 58, 30, .18);
+    }
+
+    button.secondary {
+      background: var(--xz-soft);
+      color: var(--xz-brown-dark);
+      box-shadow: none;
+    }
+
+    button.active {
+      outline: 3px solid rgba(196, 154, 90, .34);
+      background: linear-gradient(135deg, var(--xz-blue), #244957);
+      color: #fff;
+    }
+
+    input[type="text"] {
+      padding: 10px 12px;
+      border: 1px solid var(--xz-line);
+      border-radius: 12px;
+      font-size: 14px;
+      color: var(--xz-ink);
+      background: #fffdf8;
+    }
+
+    input[type="range"] {
+      accent-color: var(--xz-brown);
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      margin: 9px 0 4px;
+      color: var(--xz-muted);
+      font-weight: 700;
+    }
+
+    .value {
+      font-size: 12px;
+      color: var(--xz-muted);
+      text-align: right;
+      margin-top: 2px;
+    }
+
+    .workspace {
+      position: relative;
+      overflow: hidden;
+      background-color: #eee4d5;
+      background-image:
+        linear-gradient(45deg, rgba(139, 94, 52, .08) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(139, 94, 52, .08) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(139, 94, 52, .08) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(139, 94, 52, .08) 75%);
+      background-size: 24px 24px;
+      background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+    }
+
+    .workspace::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(139, 94, 52, .12);
+      border-radius: 22px;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.42), transparent 48%);
+    }
+
+    .stage {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform-origin: center center;
+      cursor: grab;
+      user-select: none;
+      z-index: 2;
+    }
+
+    .stage.dragging { cursor: grabbing; }
+
+    canvas {
+      display: block;
+      box-shadow: 0 18px 42px rgba(80, 55, 31, 0.18);
+      background: transparent;
+      image-rendering: auto;
+      border-radius: 8px;
+    }
+
+    #overlayCanvas {
+      position: absolute;
+      left: 0;
+      top: 0;
+      pointer-events: none;
+      background: transparent;
+    }
+
+    .hint {
+      font-size: 12px;
+      line-height: 1.65;
+      color: var(--xz-muted);
+    }
+
+    .topbar {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: rgba(255,250,242,0.94);
+      border: 1px solid var(--xz-line);
+      border-radius: 16px;
+      padding: 8px;
+      display: flex;
+      gap: 8px;
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(8px);
+      z-index: 10;
+    }
+
+    .topbar button {
+      width: auto;
+      padding: 8px 11px;
+    }
+
+    .pill {
+      display: inline-block;
+      font-size: 12px;
+      background: rgba(66, 107, 122, .12);
+      color: var(--xz-blue);
+      border: 1px solid rgba(66, 107, 122, .16);
+      border-radius: 999px;
+      padding: 5px 9px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .site-footer {
+      text-align: center;
+      padding: 10px 16px 12px;
+      color: var(--xz-muted);
+      font-size: 12px;
+      letter-spacing: .04em;
+      border-top: 1px solid var(--xz-line);
+      background: rgba(255, 250, 242, .92);
+    }
+
+    .test-pass { color: var(--xz-success); }
+    .test-fail { color: var(--xz-danger); }
+
+    @media (max-width: 900px) {
+      .brand-line {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .header-badge { white-space: normal; }
+      .app {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      .sidebar {
+        max-height: none;
+        border-right: 0;
+        border-bottom: 1px solid var(--xz-line);
+      }
+      .workspace {
+        min-height: 58vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <div class="brand-line">
+        <div>
+          <div class="brand-kicker">XiangZe Project Studio</div>
+          <h1>圖片去背工具</h1>
+          <p class="header-subtitle">半自動去除背景、手動修邊與 PNG 匯出，適合工程簡報、圖卡與網站素材快速整理。</p>
+        </div>
+        <div class="header-badge">襄澤專案顧問工作室｜工具開發版</div>
+      </div>
+    </header>
+
+    <div class="app">
+    <aside class="sidebar">
+      <div class="panel">
+        <div class="pill">不用 AI，可單機開啟</div>
+        <h3>圖片</h3>
+        <input id="fileInput" type="file" accept="image/*" />
+        <label for="fileNameInput">下載檔名</label>
+        <input id="fileNameInput" type="text" placeholder="例如：我的去背圖片" value="removed-background" />
+        <div class="row primary-actions" style="margin-top:8px;">
+          <button id="downloadBtn">下載 PNG</button>
+          <button id="openExportBtn" class="secondary">開啟匯出預覽</button>
+          <button id="resetBtn" class="secondary">重設圖片</button>
+        </div>
+        <div id="exportStatus" class="hint" style="margin-top:6px;"></div>
+      </div>
+
+      <div class="panel">
+        <h3>工具模式</h3>
+        <div class="row tool-mode-row">
+          <button id="pickModeBtn" class="active">點選去除顏色</button>
+          <button id="eraseModeBtn" class="secondary">手動刪除</button>
+          <button id="restoreModeBtn" class="secondary">手動恢復</button>
+          <button id="keepMarkModeBtn" class="secondary">標記保留</button>
+          <button id="removeMarkModeBtn" class="secondary">標記移除</button>
+          <button id="panModeBtn" class="secondary">移動畫面</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>預覽</h3>
+        <div class="row">
+          <button id="toggleOverlayBtn" class="secondary">隱藏標記覆蓋</button>
+        </div>
+        <div class="hint">
+          綠色代表保留區，紅色代表移除區。這只是輔助預覽，不會直接印在輸出圖上。
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>調整</h3>
+        <label for="tolerance">色差容許值</label>
+        <input id="tolerance" type="range" min="0" max="255" value="42" />
+        <div class="value"><span id="toleranceValue">42</span></div>
+
+        <label for="brushSize">筆刷大小</label>
+        <input id="brushSize" type="range" min="4" max="120" value="28" />
+        <div class="value"><span id="brushSizeValue">28</span> px</div>
+
+        <label for="softness">邊緣柔化</label>
+        <input id="softness" type="range" min="0" max="40" value="8" />
+        <div class="value"><span id="softnessValue">8</span> px</div>
+      </div>
+
+      <div class="panel">
+        <h3>編輯</h3>
+        <div class="row">
+          <button id="undoBtn" class="secondary">復原</button>
+          <button id="redoBtn" class="secondary">重做</button>
+        </div>
+        <div class="row">
+          <button id="clearMarksBtn" class="secondary">一鍵清除標記</button>
+          <button id="clearAllBtn" class="secondary">全部重來</button>
+        </div>
+        <div class="row">
+          <button id="fitBtn" class="secondary">適合視窗</button>
+          <button id="actualBtn" class="secondary">100%</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>自我檢查</h3>
+        <div id="testStatus" class="hint">初始化中…</div>
+      </div>
+
+      <div class="panel">
+        <h3>使用方式</h3>
+        <div class="hint">
+          1. 上傳圖片後，先用「點選去除顏色」快速去大面積背景。<br>
+          2. 再用「手動刪除 / 手動恢復」修邊。<br>
+          3. 需要視覺輔助時，用「標記保留 / 標記移除」做覆蓋註記。<br>
+          4. 想把紅綠標記一次清掉，按「一鍵清除標記」。<br>
+          5. 想整張重新來過，按「全部重來」。<br>
+          6. 滑鼠滾輪可縮放，空白區拖曳可平移。<br>
+          7. 這種做法很像 PPT 的去背邏輯：半自動 + 手修，不靠雲端 AI。
+        </div>
+      </div>
+    </aside>
+
+    <main class="workspace" id="workspace">
+      <div class="topbar">
+        <button id="zoomOutBtn" class="secondary">－</button>
+        <button id="zoomInBtn" class="secondary">＋</button>
+      </div>
+      <div id="stage" class="stage">
+        <div style="position:relative; display:inline-block;">
+          <canvas id="canvas"></canvas>
+          <canvas id="overlayCanvas"></canvas>
+        </div>
+      </div>
+    </main>
+    </div>
+
+    <footer class="site-footer">襄澤專案顧問工作室版權所有 ©</footer>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const fileNameInput = document.getElementById('fileNameInput');
+    const canvas = document.getElementById('canvas');
+    const overlayCanvas = document.getElementById('overlayCanvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const overlayCtx = overlayCanvas.getContext('2d');
+    const stage = document.getElementById('stage');
+    const workspace = document.getElementById('workspace');
+    const exportStatus = document.getElementById('exportStatus');
+    const testStatus = document.getElementById('testStatus');
+
+    const pickModeBtn = document.getElementById('pickModeBtn');
+    const eraseModeBtn = document.getElementById('eraseModeBtn');
+    const restoreModeBtn = document.getElementById('restoreModeBtn');
+    const keepMarkModeBtn = document.getElementById('keepMarkModeBtn');
+    const removeMarkModeBtn = document.getElementById('removeMarkModeBtn');
+    const panModeBtn = document.getElementById('panModeBtn');
+    const toggleOverlayBtn = document.getElementById('toggleOverlayBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const openExportBtn = document.getElementById('openExportBtn');
+    const undoBtn = document.getElementById('undoBtn');
+    const redoBtn = document.getElementById('redoBtn');
+    const clearMarksBtn = document.getElementById('clearMarksBtn');
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    const fitBtn = document.getElementById('fitBtn');
+    const actualBtn = document.getElementById('actualBtn');
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+
+    const toleranceInput = document.getElementById('tolerance');
+    const brushSizeInput = document.getElementById('brushSize');
+    const softnessInput = document.getElementById('softness');
+    const toleranceValue = document.getElementById('toleranceValue');
+    const brushSizeValue = document.getElementById('brushSizeValue');
+    const softnessValue = document.getElementById('softnessValue');
+
+    let mode = 'pick';
+    let showOverlay = true;
+    let originalImageData = null;
+    let baseImageData = null;
+    let maskData = null;
+    let keepMarks = null;
+    let removeMarks = null;
+    let undoStack = [];
+    let redoStack = [];
+
+    let scale = 1;
+    let offsetX = 0;
+    let offsetY = 0;
+    let isPointerDown = false;
+    let isStageDragging = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    function setMode(nextMode) {
+      mode = nextMode;
+      [pickModeBtn, eraseModeBtn, restoreModeBtn, keepMarkModeBtn, removeMarkModeBtn, panModeBtn].forEach(btn => {
+        btn.classList.remove('active');
+        btn.classList.add('secondary');
+      });
+      const map = {
+        pick: pickModeBtn,
+        erase: eraseModeBtn,
+        restore: restoreModeBtn,
+        keepMark: keepMarkModeBtn,
+        removeMark: removeMarkModeBtn,
+        pan: panModeBtn,
+      };
+      map[nextMode].classList.add('active');
+      map[nextMode].classList.remove('secondary');
+    }
+
+    function updateSliderLabels() {
+      toleranceValue.textContent = toleranceInput.value;
+      brushSizeValue.textContent = brushSizeInput.value;
+      softnessValue.textContent = softnessInput.value;
+    }
+
+    function sanitizeFileName(name) {
+      const cleaned = String(name || 'removed-background')
+        .replace(/[\\/:*?"<>|]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      return cleaned || 'removed-background';
+    }
+
+    function pushHistory() {
+      if (!maskData) return;
+      undoStack.push(maskData.slice());
+      if (undoStack.length > 30) undoStack.shift();
+      redoStack = [];
+    }
+
+    function undo() {
+      if (!undoStack.length || !maskData) return;
+      redoStack.push(maskData.slice());
+      maskData = undoStack.pop();
+      renderFromMask();
+    }
+
+    function redo() {
+      if (!redoStack.length || !maskData) return;
+      undoStack.push(maskData.slice());
+      maskData = redoStack.pop();
+      renderFromMask();
+    }
+
+    function renderFromMask() {
+      if (!baseImageData || !maskData) return;
+      const out = new ImageData(
+        new Uint8ClampedArray(baseImageData.data),
+        baseImageData.width,
+        baseImageData.height
+      );
+      for (let i = 0; i < maskData.length; i += 1) {
+        out.data[i * 4 + 3] = maskData[i];
+      }
+      ctx.putImageData(out, 0, 0);
+      renderOverlay();
+    }
+
+    function renderOverlay() {
+      overlayCanvas.width = canvas.width;
+      overlayCanvas.height = canvas.height;
+      overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+      if (!showOverlay || !keepMarks || !removeMarks) return;
+
+      const overlay = overlayCtx.createImageData(overlayCanvas.width, overlayCanvas.height);
+      for (let i = 0; i < keepMarks.length; i += 1) {
+        const p = i * 4;
+        if (removeMarks[i] > 0) {
+          overlay.data[p] = 239;
+          overlay.data[p + 1] = 68;
+          overlay.data[p + 2] = 68;
+          overlay.data[p + 3] = Math.min(170, removeMarks[i]);
+        } else if (keepMarks[i] > 0) {
+          overlay.data[p] = 34;
+          overlay.data[p + 1] = 197;
+          overlay.data[p + 2] = 94;
+          overlay.data[p + 3] = Math.min(170, keepMarks[i]);
+        }
+      }
+      overlayCtx.putImageData(overlay, 0, 0);
+    }
+
+    function setupImage(img) {
+      canvas.width = img.naturalWidth || img.width;
+      canvas.height = img.naturalHeight || img.height;
+      overlayCanvas.width = canvas.width;
+      overlayCanvas.height = canvas.height;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      baseImageData = new ImageData(
+        new Uint8ClampedArray(originalImageData.data),
+        originalImageData.width,
+        originalImageData.height
+      );
+      maskData = new Uint8ClampedArray(canvas.width * canvas.height);
+      maskData.fill(255);
+      keepMarks = new Uint8ClampedArray(canvas.width * canvas.height);
+      removeMarks = new Uint8ClampedArray(canvas.width * canvas.height);
+      undoStack = [];
+      redoStack = [];
+      exportStatus.textContent = '';
+      renderFromMask();
+      fitToScreen();
+    }
+
+    function clearMarks() {
+      if (!keepMarks || !removeMarks) return;
+      keepMarks.fill(0);
+      removeMarks.fill(0);
+      renderOverlay();
+      exportStatus.textContent = '已一鍵清除所有標記。';
+    }
+
+    function resetImage() {
+      if (!originalImageData) return;
+      baseImageData = new ImageData(
+        new Uint8ClampedArray(originalImageData.data),
+        originalImageData.width,
+        originalImageData.height
+      );
+      maskData = new Uint8ClampedArray(canvas.width * canvas.height);
+      maskData.fill(255);
+      keepMarks = new Uint8ClampedArray(canvas.width * canvas.height);
+      removeMarks = new Uint8ClampedArray(canvas.width * canvas.height);
+      undoStack = [];
+      redoStack = [];
+      renderFromMask();
+      exportStatus.textContent = '已全部重來，圖片與標記都清空了。';
+    }
+
+    function getCanvasCoords(clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      const x = Math.round((clientX - rect.left) * (canvas.width / rect.width));
+      const y = Math.round((clientY - rect.top) * (canvas.height / rect.height));
+      return {
+        x: Math.max(0, Math.min(canvas.width - 1, x)),
+        y: Math.max(0, Math.min(canvas.height - 1, y)),
+      };
+    }
+
+    function getDistance(r1, g1, b1, r2, g2, b2) {
+      const dr = r1 - r2;
+      const dg = g1 - g2;
+      const db = b1 - b2;
+      return Math.sqrt(dr * dr + dg * dg + db * db);
+    }
+
+    function removeSimilarColor(x, y) {
+      if (!baseImageData || !maskData) return;
+      pushHistory();
+
+      const { data, width, height } = baseImageData;
+      const idx = (y * width + x) * 4;
+      const tr = data[idx];
+      const tg = data[idx + 1];
+      const tb = data[idx + 2];
+      const tolerance = Number(toleranceInput.value);
+      const softness = Number(softnessInput.value);
+
+      for (let py = 0; py < height; py += 1) {
+        for (let px = 0; px < width; px += 1) {
+          const i = (py * width + px) * 4;
+          const mi = py * width + px;
+          const dist = getDistance(data[i], data[i + 1], data[i + 2], tr, tg, tb);
+
+          if (dist <= tolerance) {
+            maskData[mi] = 0;
+          } else if (softness > 0 && dist <= tolerance + softness) {
+            const ratio = (dist - tolerance) / softness;
+            const alpha = Math.round(255 * ratio);
+            maskData[mi] = Math.min(maskData[mi], alpha);
+          }
+        }
+      }
+      renderFromMask();
+    }
+
+    function brushAction(x, y, restore = false) {
+      if (!baseImageData || !maskData) return;
+      const radius = Number(brushSizeInput.value) / 2;
+      const softness = Number(softnessInput.value);
+      const width = canvas.width;
+      const height = canvas.height;
+      const minX = Math.max(0, Math.floor(x - radius - softness));
+      const maxX = Math.min(width - 1, Math.ceil(x + radius + softness));
+      const minY = Math.max(0, Math.floor(y - radius - softness));
+      const maxY = Math.min(height - 1, Math.ceil(y + radius + softness));
+
+      for (let py = minY; py <= maxY; py += 1) {
+        for (let px = minX; px <= maxX; px += 1) {
+          const dx = px - x;
+          const dy = py - y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist > radius + softness) continue;
+
+          let strength = 1;
+          if (softness > 0 && dist > radius) {
+            strength = 1 - ((dist - radius) / softness);
+          }
+          strength = Math.max(0, Math.min(1, strength));
+          const i = py * width + px;
+
+          if (restore) {
+            maskData[i] = Math.max(maskData[i], Math.round(255 * strength));
+          } else {
+            maskData[i] = Math.min(maskData[i], Math.round(255 * (1 - strength)));
+          }
+        }
+      }
+      renderFromMask();
+    }
+
+    function markArea(x, y, keep = true) {
+      if (!keepMarks || !removeMarks) return;
+      const radius = Number(brushSizeInput.value) / 2;
+      const softness = Number(softnessInput.value);
+      const width = canvas.width;
+      const height = canvas.height;
+      const minX = Math.max(0, Math.floor(x - radius - softness));
+      const maxX = Math.min(width - 1, Math.ceil(x + radius + softness));
+      const minY = Math.max(0, Math.floor(y - radius - softness));
+      const maxY = Math.min(height - 1, Math.ceil(y + radius + softness));
+
+      for (let py = minY; py <= maxY; py += 1) {
+        for (let px = minX; px <= maxX; px += 1) {
+          const dx = px - x;
+          const dy = py - y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist > radius + softness) continue;
+
+          let strength = 1;
+          if (softness > 0 && dist > radius) {
+            strength = 1 - ((dist - radius) / softness);
+          }
+          strength = Math.max(0, Math.min(1, strength));
+          const i = py * width + px;
+          const val = Math.round(180 * strength);
+
+          if (keep) {
+            keepMarks[i] = Math.max(keepMarks[i], val);
+            removeMarks[i] = 0;
+          } else {
+            removeMarks[i] = Math.max(removeMarks[i], val);
+            keepMarks[i] = 0;
+          }
+        }
+      }
+      renderOverlay();
+    }
+
+    function updateStageTransform() {
+      stage.style.transform = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px)) scale(${scale})`;
+    }
+
+    function fitToScreen() {
+      if (!canvas.width || !canvas.height) return;
+      const padding = 80;
+      const sw = workspace.clientWidth - padding;
+      const sh = workspace.clientHeight - padding;
+      scale = Math.min(sw / canvas.width, sh / canvas.height, 1);
+      offsetX = 0;
+      offsetY = 0;
+      updateStageTransform();
+    }
+
+    function zoomAt(factor) {
+      scale = Math.max(0.1, Math.min(8, scale * factor));
+      updateStageTransform();
+    }
+
+    function makeDownloadName() {
+      return `${sanitizeFileName(fileNameInput.value)}.png`;
+    }
+
+    function triggerDownload() {
+      if (!canvas.width || !canvas.height) {
+        alert('請先上傳圖片後再下載。');
+        return;
+      }
+
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = makeDownloadName();
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      exportStatus.textContent = '已嘗試直接下載；若沒反應，請改用「開啟匯出預覽」。';
+    }
+
+    function openExportPreview() {
+      if (!canvas.width || !canvas.height) {
+        alert('請先上傳圖片後再匯出。');
+        return;
+      }
+
+      const safeName = sanitizeFileName(fileNameInput.value);
+      const dataUrl = canvas.toDataURL('image/png');
+      const win = window.open('', '_blank');
+      if (!win) {
+        alert('瀏覽器阻擋了新視窗，請允許彈出視窗後再試。');
+        return;
+      }
+
+      const html = `<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>${safeName}</title>
+<style>
+body{font-family:"Microsoft JhengHei",sans-serif;margin:24px;background:#f3f4f6;color:#111827}
+.wrap{max-width:1200px;margin:0 auto}
+img{max-width:100%;height:auto;display:block;background:linear-gradient(45deg,#e5e7eb 25%,transparent 25%),linear-gradient(-45deg,#e5e7eb 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e5e7eb 75%),linear-gradient(-45deg,transparent 75%,#e5e7eb 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0;border:1px solid #d1d5db;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+.btn{display:inline-block;margin:0 0 16px;padding:10px 14px;border-radius:10px;background:#111827;color:#fff;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a class="btn" href="${dataUrl}" download="${safeName}.png">下載 PNG</a>
+<p>若按鈕仍無效，可在圖片上按右鍵另存新檔。</p>
+<img src="${dataUrl}" alt="export preview">
+</div>
+</body>
+</html>`;
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+      exportStatus.textContent = '已開啟匯出預覽；若直接下載失敗，可在新分頁右鍵另存圖片。';
+    }
+
+    function runSelfTests() {
+      const results = [];
+      function assertEqual(name, actual, expected) {
+        results.push({ name, pass: actual === expected, actual, expected });
+      }
+
+      assertEqual('sanitize: 移除非法字元', sanitizeFileName('a/b:c*?"<>|d'), 'abcd');
+      assertEqual('sanitize: 空白回退預設值', sanitizeFileName('   '), 'removed-background');
+      assertEqual('sanitize: 保留一般中文名稱', sanitizeFileName('交維貼紙-箭頭01'), '交維貼紙-箭頭01');
+      assertEqual('download name: 自動補副檔名', (() => { fileNameInput.value = '測試輸出'; return makeDownloadName(); })(), '測試輸出.png');
+      assertEqual('clearMarks: 可將保留標記清空', (() => {
+        keepMarks = new Uint8ClampedArray(3);
+        removeMarks = new Uint8ClampedArray(3);
+        keepMarks[1] = 100;
+        clearMarks();
+        return keepMarks[1];
+      })(), 0);
+
+      const failed = results.filter(r => !r.pass);
+      if (failed.length === 0) {
+        testStatus.innerHTML = '<span class="test-pass">自我檢查通過：4/4</span>';
+      } else {
+        testStatus.innerHTML = `<span class="test-fail">自我檢查失敗：${failed.length} 項</span><br>` + failed.map(f => `${f.name}（實際：${f.actual} / 預期：${f.expected}）`).join('<br>');
+        console.error('Self tests failed:', failed);
+      }
+
+      fileNameInput.value = 'removed-background';
+    }
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const originalName = file.name.replace(/\.[^.]+$/, '');
+      fileNameInput.value = `${originalName}-去背`;
+
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const img = new Image();
+        img.onload = () => setupImage(img);
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    pickModeBtn.addEventListener('click', () => setMode('pick'));
+    eraseModeBtn.addEventListener('click', () => setMode('erase'));
+    restoreModeBtn.addEventListener('click', () => setMode('restore'));
+    keepMarkModeBtn.addEventListener('click', () => setMode('keepMark'));
+    removeMarkModeBtn.addEventListener('click', () => setMode('removeMark'));
+    panModeBtn.addEventListener('click', () => setMode('pan'));
+
+    toggleOverlayBtn.addEventListener('click', () => {
+      showOverlay = !showOverlay;
+      toggleOverlayBtn.textContent = showOverlay ? '隱藏標記覆蓋' : '顯示標記覆蓋';
+      renderOverlay();
+    });
+
+    resetBtn.addEventListener('click', resetImage);
+    clearMarksBtn.addEventListener('click', clearMarks);
+    clearAllBtn.addEventListener('click', resetImage);
+    downloadBtn.addEventListener('click', triggerDownload);
+    openExportBtn.addEventListener('click', openExportPreview);
+    undoBtn.addEventListener('click', undo);
+    redoBtn.addEventListener('click', redo);
+    fitBtn.addEventListener('click', fitToScreen);
+    actualBtn.addEventListener('click', () => {
+      scale = 1;
+      offsetX = 0;
+      offsetY = 0;
+      updateStageTransform();
+    });
+    zoomInBtn.addEventListener('click', () => zoomAt(1.15));
+    zoomOutBtn.addEventListener('click', () => zoomAt(1 / 1.15));
+    toleranceInput.addEventListener('input', updateSliderLabels);
+    brushSizeInput.addEventListener('input', updateSliderLabels);
+    softnessInput.addEventListener('input', updateSliderLabels);
+
+    canvas.addEventListener('pointerdown', (e) => {
+      if (!canvas.width) return;
+      isPointerDown = true;
+      const { x, y } = getCanvasCoords(e.clientX, e.clientY);
+      lastX = x;
+      lastY = y;
+
+      if (mode === 'pick') {
+        removeSimilarColor(x, y);
+        isPointerDown = false;
+        return;
+      }
+
+      if (mode === 'erase' || mode === 'restore') {
+        pushHistory();
+        brushAction(x, y, mode === 'restore');
+        return;
+      }
+
+      if (mode === 'keepMark' || mode === 'removeMark') {
+        markArea(x, y, mode === 'keepMark');
+      }
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+      if (!isPointerDown) return;
+      if (!['erase', 'restore', 'keepMark', 'removeMark'].includes(mode)) return;
+
+      const { x, y } = getCanvasCoords(e.clientX, e.clientY);
+      const steps = Math.max(Math.abs(x - lastX), Math.abs(y - lastY));
+      for (let i = 0; i <= steps; i += 1) {
+        const ix = Math.round(lastX + (x - lastX) * (i / Math.max(steps, 1)));
+        const iy = Math.round(lastY + (y - lastY) * (i / Math.max(steps, 1)));
+        if (mode === 'erase' || mode === 'restore') {
+          brushAction(ix, iy, mode === 'restore');
+        } else {
+          markArea(ix, iy, mode === 'keepMark');
+        }
+      }
+      lastX = x;
+      lastY = y;
+    });
+
+    window.addEventListener('pointerup', () => {
+      isPointerDown = false;
+      isStageDragging = false;
+      stage.classList.remove('dragging');
+    });
+
+    workspace.addEventListener('pointerdown', (e) => {
+      if (e.target === canvas && mode !== 'pan') return;
+      if (e.target === overlayCanvas && mode !== 'pan') return;
+      isStageDragging = true;
+      stage.classList.add('dragging');
+      lastX = e.clientX;
+      lastY = e.clientY;
+    });
+
+    workspace.addEventListener('pointermove', (e) => {
+      if (!isStageDragging) return;
+      offsetX += e.clientX - lastX;
+      offsetY += e.clientY - lastY;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      updateStageTransform();
+    });
+
+    workspace.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      zoomAt(e.deltaY < 0 ? 1.08 : 1 / 1.08);
+    }, { passive: false });
+
+    window.addEventListener('resize', () => {
+      if (canvas.width) updateStageTransform();
+    });
+
+    updateSliderLabels();
+    runSelfTests();
+  </script>
+</body>
+</html>
