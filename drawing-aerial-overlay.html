@@ -1,0 +1,898 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>契約圖空照圖套匯工具｜襄澤專案顧問工作室</title>
+  <style>
+    :root{
+      --bg:#f7f1e8;
+      --panel:#fffaf2;
+      --paper:#fffdf8;
+      --text:#24170f;
+      --muted:#7c6a58;
+      --line:#e2d2bc;
+      --accent:#a86a32;
+      --accent-dark:#7a431d;
+      --navy:#24384f;
+      --navy-2:#18283c;
+      --cream:#efe3d2;
+      --bad:#b94a38;
+      --good:#2f6b4f;
+      --shadow:0 14px 38px rgba(65,42,22,.08);
+      --radius:18px;
+    }
+    *{box-sizing:border-box;font-family:"Noto Sans TC","Microsoft JhengHei",system-ui,-apple-system,Segoe UI,sans-serif;}
+    body{margin:0;background:linear-gradient(180deg,#fbf7ef 0%,#f4eadc 100%);color:var(--text);min-height:100vh;}
+    header{
+      height:72px;padding:12px 22px;border-bottom:1px solid var(--line);
+      display:flex;align-items:center;gap:14px;background:rgba(255,250,242,.92);backdrop-filter:blur(8px);
+      position:sticky;top:0;z-index:20;
+    }
+    header .dot{
+      width:40px;height:40px;border-radius:13px;border:1px solid var(--line);background:#fffdf8;position:relative;box-shadow:var(--shadow);
+      display:flex;align-items:center;justify-content:center;color:var(--accent-dark);
+    }
+    header .dot svg{width:25px;height:25px;display:block;stroke:currentColor;}
+    .title-wrap{display:flex;flex-direction:column;gap:2px;min-width:0;}
+    header h1{font-size:22px;margin:0;font-weight:800;letter-spacing:.06em;color:var(--text);}
+    header .subtitle{font-size:12px;color:var(--muted);letter-spacing:.04em;}
+    header .hint{margin-left:auto;color:var(--accent-dark);font-size:12px;font-weight:700;white-space:nowrap;}
+    .wrap{display:grid;grid-template-columns:390px minmax(860px,1fr);min-height:calc(100vh - 72px);}
+    .panel{border-right:1px solid var(--line);padding:14px;background:rgba(255,250,242,.88);overflow:auto;}
+    .brand-strip{border:1px solid var(--line);border-radius:999px;background:#fffdf8;color:var(--accent-dark);font-size:12px;font-weight:700;text-align:center;padding:7px 10px;margin-bottom:12px;letter-spacing:.04em;}
+    .panel h2{font-size:14px;margin:0 0 12px;color:var(--text);font-weight:800;display:flex;align-items:center;gap:8px;}
+    .panel h2::before{content:"";width:4px;height:18px;background:#6e98f5;border-radius:99px;display:inline-block;}
+    .card{border:1px solid var(--line);border-radius:var(--radius);padding:14px;background:rgba(255,253,248,.94);box-shadow:var(--shadow);margin-bottom:12px;}
+    .row{display:grid;grid-template-columns:94px 1fr;gap:10px;align-items:center;margin:9px 0;}
+    .row label{color:var(--text);font-size:13px;font-weight:700;}
+    input[type="file"]{width:100%;font-size:12px;color:var(--muted);}
+    input[type="range"]{width:100%;accent-color:var(--accent);}
+    input[type="number"]{width:100%;padding:9px 10px;border-radius:11px;border:1px solid var(--line);background:#fff;color:var(--text);font-weight:700;}
+    input[type="checkbox"]{width:18px;height:18px;accent-color:var(--accent);}
+    input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(168,106,50,.12);}
+    .btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+    .btns.three{grid-template-columns:1fr 1fr 1fr;}
+    button{
+      padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--cream);color:#472916;cursor:pointer;
+      font-weight:800;font-size:13px;transition:.15s transform,.15s filter,.15s background;
+    }
+    button:hover{transform:translateY(-1px);filter:brightness(1.03)}
+    button.primary{background:var(--navy);border-color:var(--navy);color:#fff;}
+    button.good{background:var(--accent);border-color:var(--accent);color:#fff;}
+    button.warn{background:#f0e3cf;border-color:#decab0;color:#4b2a12;}
+    button.bad{background:#fff6f0;border-color:#d8a899;color:var(--bad);}
+    button.active{box-shadow:0 0 0 3px rgba(110,152,245,.22);border-color:#6e98f5;background:var(--navy);color:#fff;}
+    .mini{font-size:11.5px;color:var(--muted);line-height:1.65;margin-top:9px;}
+    .kbd{display:inline-block;padding:1px 6px;border:1px solid var(--line);border-bottom-width:2px;border-radius:8px;background:#fff;color:var(--accent-dark);font-size:11px;font-weight:800;}
+    .tool-row{display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:center;margin:10px 0;}
+    .tool-row label{font-size:13px;font-weight:800;color:var(--text);}
+    .swatches,.line-styles{display:flex;gap:8px;flex-wrap:wrap;}
+    .swatch{width:28px;height:28px;border-radius:8px;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);padding:0;min-width:auto;}
+    .swatch.active{box-shadow:0 0 0 3px rgba(110,152,245,.35);transform:none;}
+    .line-styles button{padding:7px 14px;min-width:56px;background:#f7efe3;color:#2f1d13;}
+    .line-styles button.active{background:var(--navy);color:#fff;}
+    .stage{position:relative;padding:14px;background:#f6efe5;overflow:auto;}
+    .canvas-card{height:calc(100vh - 200px);min-height:520px;border:1px solid var(--line);border-radius:24px;overflow:hidden;background:var(--paper);box-shadow:var(--shadow);position:relative;}
+    .overlay-tune{margin-top:12px;border:1px solid var(--line);border-radius:18px;padding:12px 14px;background:rgba(255,253,248,.94);box-shadow:var(--shadow);}
+    .overlay-tune h2{font-size:14px;margin:0 0 10px;color:var(--text);font-weight:800;display:flex;align-items:center;gap:8px;}
+    .overlay-tune h2::before{content:"";width:4px;height:18px;background:#6e98f5;border-radius:99px;display:inline-block;}
+    .tune-grid{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:10px 12px;align-items:end;}
+    .tune-grid label{display:block;font-size:12px;font-weight:800;color:var(--text);margin-bottom:5px;}
+    .tune-grid input{width:100%;padding:9px 10px;border-radius:11px;border:1px solid var(--line);background:#fff;color:var(--text);font-weight:700;}
+    .tune-note{font-size:11.5px;color:var(--muted);line-height:1.55;margin-top:8px;}
+    canvas{width:100%;height:100%;display:block;background:#fdfbf7;}
+    .toast{position:absolute;left:30px;bottom:30px;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,253,248,.88);color:var(--muted);font-size:12px;max-width:min(620px,92%);box-shadow:var(--shadow);}
+    .badge{display:inline-flex;align-items:center;gap:6px;margin-right:10px;color:var(--text)}
+    .pill{padding:2px 8px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--accent-dark);font-size:11px;font-weight:800;}
+    .segment-note{font-size:11.5px;color:var(--accent-dark);font-weight:700;margin-top:8px;}
+    .copyright{font-size:11.5px;color:var(--muted);text-align:center;padding:8px 0 0;border-top:1px solid var(--line);margin-top:4px;}
+    @media(max-width:1100px){.wrap{grid-template-columns:1fr}.stage{min-height:70vh}.canvas-card{height:70vh}.panel{border-right:none;border-bottom:1px solid var(--line)}header{position:static}.hint{display:none}.tune-grid{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="dot" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 6.5l5-2 6 2 5-2v13l-5 2-6-2-5 2v-13z"/>
+      <path d="M9 4.5v13"/>
+      <path d="M15 6.5v13"/>
+      <path d="M12 9.2c1.55 0 2.8 1.25 2.8 2.8 0 2.15-2.8 4.8-2.8 4.8S9.2 14.15 9.2 12c0-1.55 1.25-2.8 2.8-2.8z"/>
+      <circle cx="12" cy="12" r=".75" fill="currentColor" stroke="none"/>
+    </svg>
+  </div>
+  <div class="title-wrap">
+    <h1>契約圖空照圖套匯工具</h1>
+    <div class="subtitle">Contract Drawing × Aerial Overlay Tool</div>
+  </div>
+  <div class="hint">拖曳套圖｜<span class="kbd">Shift</span>+拖曳旋轉｜滾輪縮放｜雙擊取消繪圖點｜可分段標註</div>
+</header>
+
+<div class="wrap">
+  <aside class="panel">
+    <div class="brand-strip">襄澤專案顧問工作室</div>
+    <div class="card">
+      <h2>圖資載入</h2>
+      <div class="row">
+        <label>底圖</label>
+        <input id="baseFile" type="file" accept="image/*" />
+      </div>
+      <div class="row">
+        <label>套圖</label>
+        <input id="overlayFile" type="file" accept="image/*" />
+      </div>
+      <div class="row">
+        <label>套圖透明</label>
+        <input id="overlayAlpha" type="range" min="0" max="1" step="0.01" value="0.65" />
+      </div>
+      <div class="row">
+        <label>顯示套圖</label>
+        <input id="overlayVisible" type="checkbox" checked />
+      </div>
+      <div class="btns">
+        <button id="fitBase" class="primary">底圖自動適配</button>
+        <button id="autoPlace" class="primary">套圖置中＋適配寬</button>
+        <button id="resetOverlay" class="warn">重置套圖變形</button>
+      </div>
+      <div class="mini">
+        小提醒：如果你是用 Google/衛星截圖，建議先用截圖工具裁到同一個範圍（同一交叉口附近），套繪會快很多。
+      </div>
+    </div>
+
+
+    <div class="card">
+      <h2>繪圖屬性</h2>
+      <div class="tool-row">
+        <label>畫筆顏色</label>
+        <div class="swatches" id="colorBtns">
+          <button type="button" class="swatch active" data-color="#ff4545" style="background:#ff4545" title="紅色"></button>
+          <button type="button" class="swatch" data-color="#ffc400" style="background:#ffc400" title="黃色"></button>
+          <button type="button" class="swatch" data-color="#3b91ff" style="background:#3b91ff" title="藍色"></button>
+          <button type="button" class="swatch" data-color="#4bd08a" style="background:#4bd08a" title="綠色"></button>
+          <button type="button" class="swatch" data-color="#ffffff" style="background:#ffffff" title="白色"></button>
+        </div>
+      </div>
+      <div class="tool-row">
+        <label>線條型式</label>
+        <div class="line-styles" id="lineStyleBtns">
+          <button type="button" class="active" data-style="solid">實線</button>
+          <button type="button" data-style="dashed">虛線</button>
+          <button type="button" data-style="dotted">點線</button>
+          <button type="button" data-style="double">雙線</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>標註操作</h2>
+      <div class="btns three">
+        <button id="modeNone" class="primary active">操作套圖</button>
+        <button id="modeRoute" class="primary">繪製路徑線</button>
+        <button id="modeArea" class="primary">繪製閉合區</button>
+      </div>
+      <div class="btns">
+        <button id="finishSegment" class="good">完成本段／另開一段</button>
+        <button id="undo" class="warn">復原</button>
+        <button id="clearRoute" class="bad">清除路徑</button>
+        <button id="clearArea" class="bad">清除閉合區</button>
+        <button id="clearAllAnno" class="bad">全部清除</button>
+      </div>
+      <div class="segment-note" id="segmentNote">目前：路徑第 1 段、閉合區第 1 區</div>
+      <div class="mini">
+        ※ 可分次繪製：畫完一段後按「完成本段／另開一段」，下一段不會和前一段相連。雙擊畫布可刪除目前段落最後一個點位。
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <h2>輸出</h2>
+      <div class="btns">
+        <button id="exportPng" class="good">匯出 PNG（含底圖/套圖/標註）</button>
+        <button id="exportJson">匯出 JSON（點位）</button>
+        <button id="importJson">匯入 JSON（點位）</button>
+      </div>
+      <input id="jsonFile" type="file" accept="application/json" style="display:none;"/>
+      <div class="mini">
+        匯出 PNG 是最常用（直接貼進計畫書/簡報）。JSON 用於你下次繼續調，不用重畫。
+      </div>
+    </div>
+    <div class="copyright">襄澤專案顧問工作室版權所有 ©</div>
+  </aside>
+
+  <main class="stage">
+    <div class="canvas-card">
+      <canvas id="c"></canvas>
+      <div class="toast" id="toast">
+        <span class="badge">狀態：<span class="pill" id="modePill">操作套圖</span></span>
+        <span class="badge">提示：用滑鼠拖曳套圖對位；<span class="kbd">Shift</span>+拖曳可旋轉；滾輪縮放</span>
+      </div>
+    </div>
+    <div class="overlay-tune">
+      <h2>套圖微調</h2>
+      <div class="tune-grid">
+        <div><label for="tx">X（像素）</label><input id="tx" type="number" step="1" value="0"/></div>
+        <div><label for="ty">Y（像素）</label><input id="ty" type="number" step="1" value="0"/></div>
+        <div><label for="ts">縮放</label><input id="ts" type="number" step="0.01" value="1"/></div>
+        <div><label for="tr">旋轉（°）</label><input id="tr" type="number" step="0.1" value="0"/></div>
+      </div>
+      <div class="tune-note">此列為套圖的精準微調欄位；一般可直接在圖紙上拖曳、Shift＋拖曳旋轉、滾輪縮放。</div>
+    </div>
+  </main>
+</div>
+
+<script>
+(() => {
+  const el = (id) => document.getElementById(id);
+  const canvas = el('c');
+  const ctx = canvas.getContext('2d');
+
+  const baseFile = el('baseFile');
+  const overlayFile = el('overlayFile');
+  const overlayAlpha = el('overlayAlpha');
+  const overlayVisible = el('overlayVisible');
+
+  const tx = el('tx');
+  const ty = el('ty');
+  const ts = el('ts');
+  const tr = el('tr');
+
+  const fitBase = el('fitBase');
+  const autoPlace = el('autoPlace');
+  const resetOverlay = el('resetOverlay');
+
+  const modeNone = el('modeNone');
+  const modeRoute = el('modeRoute');
+  const modeArea = el('modeArea');
+  const modePill = el('modePill');
+
+  const finishSegmentBtn = el('finishSegment');
+  const segmentNote = el('segmentNote');
+  const undoBtn = el('undo');
+  const clearRoute = el('clearRoute');
+  const clearArea = el('clearArea');
+  const clearAllAnno = el('clearAllAnno');
+  const colorBtns = el('colorBtns');
+  const lineStyleBtns = el('lineStyleBtns');
+
+  const exportPng = el('exportPng');
+  const exportJson = el('exportJson');
+  const importJson = el('importJson');
+  const jsonFile = el('jsonFile');
+
+  // Images
+  const baseImg = new Image();
+  const overlayImg = new Image();
+  let baseLoaded = false;
+  let overlayLoaded = false;
+
+  // Base fit: world(base pixels) -> screen
+  let fit = { scale: 1, ox: 0, oy: 0, w: 0, h: 0 };
+
+  // Overlay transform in world coords (base pixel coordinate system)
+  let overlayT = { x: 0, y: 0, s: 1, r: 0 };
+
+  // Drawing
+  let mode = 'none'; // none | route | area
+  let routes = [[]]; // 多段路徑線：[[{x,y},...], ...]
+  let areas = [[]];  // 多個閉合區：[[{x,y},...], ...]
+  let drawColor = '#ff4545';
+  let lineStyle = 'solid';
+  let routeStyles = [{ color: drawColor, lineStyle }];
+  let areaStyles = [{ color: drawColor, lineStyle }];
+
+  // Interaction
+  let draggingOverlay = false;
+  let rotatingOverlay = false;
+  let last = { x: 0, y: 0 };
+
+  function setMode(next){
+    mode = next;
+    const label = (next === 'none') ? '操作套圖' : (next === 'route' ? '繪製路徑線' : '繪製閉合區');
+    modePill.textContent = label;
+    [modeNone, modeRoute, modeArea].forEach(btn => btn.classList.remove('active'));
+    if(next === 'none') modeNone.classList.add('active');
+    if(next === 'route') modeRoute.classList.add('active');
+    if(next === 'area') modeArea.classList.add('active');
+    if(next === 'route' && currentRoute().length === 0) routeStyles[routes.length - 1] = { color: drawColor, lineStyle };
+    if(next === 'area' && currentArea().length === 0) areaStyles[areas.length - 1] = { color: drawColor, lineStyle };
+  }
+
+  function currentRoute(){
+    if(!routes.length) routes.push([]);
+    return routes[routes.length - 1];
+  }
+
+  function currentArea(){
+    if(!areas.length) areas.push([]);
+    return areas[areas.length - 1];
+  }
+
+  function ensureStyleArrays(){
+    while(routeStyles.length < routes.length) routeStyles.push({ color: drawColor, lineStyle });
+    while(areaStyles.length < areas.length) areaStyles.push({ color: drawColor, lineStyle });
+    routeStyles = routeStyles.slice(0, routes.length);
+    areaStyles = areaStyles.slice(0, areas.length);
+  }
+
+  function beginRouteStyleIfNeeded(){
+    ensureStyleArrays();
+    const idx = routes.length - 1;
+    if(currentRoute().length === 0) routeStyles[idx] = { color: drawColor, lineStyle };
+  }
+
+  function beginAreaStyleIfNeeded(){
+    ensureStyleArrays();
+    const idx = areas.length - 1;
+    if(currentArea().length === 0) areaStyles[idx] = { color: drawColor, lineStyle };
+  }
+
+  function cleanEmptySegments(){
+    const nextRoutes = [];
+    const nextRouteStyles = [];
+    routes.forEach((seg, i) => {
+      if(seg.length > 0 || i === routes.length - 1){
+        nextRoutes.push(seg);
+        nextRouteStyles.push(routeStyles[i] || { color: drawColor, lineStyle });
+      }
+    });
+    routes = nextRoutes.length ? nextRoutes : [[]];
+    routeStyles = nextRouteStyles.length ? nextRouteStyles : [{ color: drawColor, lineStyle }];
+
+    const nextAreas = [];
+    const nextAreaStyles = [];
+    areas.forEach((seg, i) => {
+      if(seg.length > 0 || i === areas.length - 1){
+        nextAreas.push(seg);
+        nextAreaStyles.push(areaStyles[i] || { color: drawColor, lineStyle });
+      }
+    });
+    areas = nextAreas.length ? nextAreas : [[]];
+    areaStyles = nextAreaStyles.length ? nextAreaStyles : [{ color: drawColor, lineStyle }];
+    ensureStyleArrays();
+  }
+
+  function updateSegmentNote(){
+    if(!segmentNote) return;
+    const rDone = routes.filter(seg => seg.length >= 2).length;
+    const aDone = areas.filter(seg => seg.length >= 3).length;
+    segmentNote.textContent = `目前：路徑第 ${routes.length} 段、閉合區第 ${areas.length} 區｜已成形：路徑 ${rDone} 段、閉合區 ${aDone} 區`;
+  }
+
+  function finishCurrentSegment(){
+    if(mode === 'route' && currentRoute().length > 0){ routes.push([]); routeStyles.push({ color: drawColor, lineStyle }); }
+    if(mode === 'area' && currentArea().length > 0){ areas.push([]); areaStyles.push({ color: drawColor, lineStyle }); }
+    cleanEmptySegments();
+    updateSegmentNote();
+    render();
+  }
+
+  function hexToRgba(hex, alpha){
+    const clean = String(hex || '#ff4545').replace('#','');
+    const r = parseInt(clean.slice(0,2),16);
+    const g = parseInt(clean.slice(2,4),16);
+    const b = parseInt(clean.slice(4,6),16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  function applyLineStyle(g, style, width){
+    g.setLineDash([]);
+    g.lineWidth = width;
+    if(style === 'dashed') g.setLineDash([14, 10]);
+    if(style === 'dotted') { g.setLineDash([2, 9]); g.lineCap = 'round'; }
+  }
+
+  function resize(){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    computeFit();
+    render();
+  }
+
+  function computeFit(){
+    if(!baseLoaded) return;
+    const rect = canvas.getBoundingClientRect();
+    const cw = rect.width;
+    const ch = rect.height;
+    const s = Math.min(cw / baseImg.width, ch / baseImg.height);
+    const w = baseImg.width * s;
+    const h = baseImg.height * s;
+    const ox = (cw - w) / 2;
+    const oy = (ch - h) / 2;
+    fit = { scale: s, ox, oy, w, h };
+  }
+
+  function worldToScreen(p){
+    return { x: fit.ox + p.x * fit.scale, y: fit.oy + p.y * fit.scale };
+  }
+  function screenToWorld(p){
+    return { x: (p.x - fit.ox) / fit.scale, y: (p.y - fit.oy) / fit.scale };
+  }
+
+  function updateFieldsFromTransform(){
+    tx.value = Math.round(overlayT.x);
+    ty.value = Math.round(overlayT.y);
+    ts.value = overlayT.s.toFixed(3);
+    tr.value = (overlayT.r * 180/Math.PI).toFixed(2);
+  }
+  function updateTransformFromFields(){
+    overlayT.x = Number(tx.value || 0);
+    overlayT.y = Number(ty.value || 0);
+    overlayT.s = Number(ts.value || 1);
+    overlayT.r = Number(tr.value || 0) * Math.PI/180;
+    render();
+  }
+
+  function placeOverlayCenterFitWidth(){
+    if(!baseLoaded || !overlayLoaded) return;
+    // Fit overlay width to base width (world units)
+    const s = baseImg.width / overlayImg.width;
+    overlayT.s = s;
+    overlayT.r = 0;
+    overlayT.x = (baseImg.width - overlayImg.width * s)/2;
+    overlayT.y = (baseImg.height - overlayImg.height * s)/2;
+    updateFieldsFromTransform();
+    render();
+  }
+
+  function resetOverlayTransform(){
+    overlayT = { x: 0, y: 0, s: 1, r: 0 };
+    updateFieldsFromTransform();
+    render();
+  }
+
+  function drawBase(){
+    if(!baseLoaded) return;
+    ctx.save();
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    // because we setTransform(dpr,..) already, clearRect uses CSS pixels, so use bounding rect sizes
+    const rect = canvas.getBoundingClientRect();
+    ctx.clearRect(0,0,rect.width,rect.height);
+    ctx.drawImage(baseImg, fit.ox, fit.oy, fit.w, fit.h);
+    ctx.restore();
+  }
+
+  function drawOverlay(){
+    if(!baseLoaded || !overlayLoaded || !overlayVisible.checked) return;
+    const a = Number(overlayAlpha.value);
+    ctx.save();
+    ctx.globalAlpha = a;
+
+    // Map world transform to screen
+    const p0 = worldToScreen({x: overlayT.x, y: overlayT.y});
+    const s = fit.scale * overlayT.s;
+
+    // Draw overlay with rotation around its top-left? Better: rotate around overlay center.
+    const ow = overlayImg.width * s;
+    const oh = overlayImg.height * s;
+    const cx = p0.x + ow/2;
+    const cy = p0.y + oh/2;
+
+    ctx.translate(cx, cy);
+    ctx.rotate(overlayT.r);
+    ctx.translate(-ow/2, -oh/2);
+    ctx.drawImage(overlayImg, 0, 0, ow, oh);
+
+    ctx.restore();
+  }
+
+  function strokePolyline(points, color, width, style='solid'){
+    if(points.length < 2) return;
+    ctx.save();
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = color;
+    applyLineStyle(ctx, style, width);
+    ctx.beginPath();
+    const p1 = worldToScreen(points[0]);
+    ctx.moveTo(p1.x, p1.y);
+    for(let i=1;i<points.length;i++){
+      const p = worldToScreen(points[i]);
+      ctx.lineTo(p.x, p.y);
+    }
+    ctx.stroke();
+    if(style === 'double'){
+      ctx.strokeStyle = 'rgba(255,255,255,.85)';
+      ctx.lineWidth = Math.max(1.5, width * .38);
+      ctx.setLineDash([]);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function fillPolygon(points, fill, stroke, width){
+    if(points.length < 3) return;
+    ctx.save();
+    ctx.beginPath();
+    const p0 = worldToScreen(points[0]);
+    ctx.moveTo(p0.x, p0.y);
+    for(let i=1;i<points.length;i++){
+      const p = worldToScreen(points[i]);
+      ctx.lineTo(p.x, p.y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = width;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawAnnotations(){
+    if(!baseLoaded) return;
+    // Closed areas: support multiple batches
+    ensureStyleArrays();
+    areas.forEach((seg, i) => {
+      const st = areaStyles[i] || { color: drawColor, lineStyle };
+      fillPolygon(seg, hexToRgba(st.color, 0.18), hexToRgba(st.color, 0.78), 2);
+    });
+    // Route lines: support multiple independent polylines, each keeps its own style
+    routes.forEach((seg, i) => {
+      const st = routeStyles[i] || { color: drawColor, lineStyle };
+      strokePolyline(seg, hexToRgba(st.color, 0.96), 4, st.lineStyle);
+    });
+
+    // Draw points while editing current batch only
+    const pts = (mode === 'route') ? currentRoute() : (mode === 'area' ? currentArea() : []);
+    if(pts.length){
+      ctx.save();
+      for(const p of pts){
+        const s = worldToScreen(p);
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, 4.5, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(230,235,255,.95)';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(0,0,0,.35)';
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+  }
+
+  function render(){
+    drawBase();
+    drawOverlay();
+    drawAnnotations();
+    updateSegmentNote();
+  }
+
+  function loadImageFromFile(file, img, onDone){
+    if(!file) return;
+    const url = URL.createObjectURL(file);
+    img.onload = () => { URL.revokeObjectURL(url); onDone(); };
+    img.onerror = () => { URL.revokeObjectURL(url); alert('圖片載入失敗，請換一張試試'); };
+    img.src = url;
+  }
+
+  baseFile.addEventListener('change', (e) => {
+    const f = e.target.files?.[0];
+    loadImageFromFile(f, baseImg, () => {
+      baseLoaded = true;
+      computeFit();
+      // If overlay already loaded, keep transform; else reset
+      render();
+    });
+  });
+
+  overlayFile.addEventListener('change', (e) => {
+    const f = e.target.files?.[0];
+    loadImageFromFile(f, overlayImg, () => {
+      overlayLoaded = true;
+      // Place overlay roughly center-fit
+      if(baseLoaded) placeOverlayCenterFitWidth();
+      else resetOverlayTransform();
+      render();
+    });
+  });
+
+  overlayAlpha.addEventListener('input', render);
+  overlayVisible.addEventListener('change', render);
+
+  tx.addEventListener('input', updateTransformFromFields);
+  ty.addEventListener('input', updateTransformFromFields);
+  ts.addEventListener('input', updateTransformFromFields);
+  tr.addEventListener('input', updateTransformFromFields);
+
+  fitBase.addEventListener('click', () => { computeFit(); render(); });
+  autoPlace.addEventListener('click', placeOverlayCenterFitWidth);
+  resetOverlay.addEventListener('click', resetOverlayTransform);
+
+  modeNone.addEventListener('click', () => setMode('none'));
+  modeRoute.addEventListener('click', () => setMode('route'));
+  modeArea.addEventListener('click', () => setMode('area'));
+  finishSegmentBtn.addEventListener('click', finishCurrentSegment);
+
+  colorBtns.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-color]');
+    if(!btn) return;
+    drawColor = btn.dataset.color;
+    colorBtns.querySelectorAll('.swatch').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if(mode === 'route' && currentRoute().length === 0) routeStyles[routes.length - 1] = { color: drawColor, lineStyle };
+    if(mode === 'area' && currentArea().length === 0) areaStyles[areas.length - 1] = { color: drawColor, lineStyle };
+    render();
+  });
+
+  lineStyleBtns.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-style]');
+    if(!btn) return;
+    lineStyle = btn.dataset.style;
+    lineStyleBtns.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if(mode === 'route' && currentRoute().length === 0) routeStyles[routes.length - 1] = { color: drawColor, lineStyle };
+    if(mode === 'area' && currentArea().length === 0) areaStyles[areas.length - 1] = { color: drawColor, lineStyle };
+    render();
+  });
+
+  undoBtn.addEventListener('click', () => {
+    if(mode === 'route' && currentRoute().length) currentRoute().pop();
+    else if(mode === 'area' && currentArea().length) currentArea().pop();
+    cleanEmptySegments();
+    render();
+  });
+  clearRoute.addEventListener('click', () => { routes = [[]]; routeStyles = [{ color: drawColor, lineStyle }]; render(); });
+  clearArea.addEventListener('click', () => { areas = [[]]; areaStyles = [{ color: drawColor, lineStyle }]; render(); });
+  clearAllAnno.addEventListener('click', () => { routes = [[]]; areas = [[]]; routeStyles = [{ color: drawColor, lineStyle }]; areaStyles = [{ color: drawColor, lineStyle }]; render(); });
+
+  function getPointer(e){
+    const rect = canvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  function pointInOverlay(screenPt){
+    if(!baseLoaded || !overlayLoaded) return false;
+    // Check in screen space using inverse transform
+    const p0 = worldToScreen({x: overlayT.x, y: overlayT.y});
+    const s = fit.scale * overlayT.s;
+    const ow = overlayImg.width * s;
+    const oh = overlayImg.height * s;
+    const cx = p0.x + ow/2;
+    const cy = p0.y + oh/2;
+
+    // Convert to overlay local space
+    const dx = screenPt.x - cx;
+    const dy = screenPt.y - cy;
+    const cos = Math.cos(-overlayT.r);
+    const sin = Math.sin(-overlayT.r);
+    const lx = dx * cos - dy * sin + ow/2;
+    const ly = dx * sin + dy * cos + oh/2;
+    return lx >= 0 && ly >= 0 && lx <= ow && ly <= oh;
+  }
+
+  canvas.addEventListener('pointerdown', (e) => {
+    canvas.setPointerCapture(e.pointerId);
+    const p = getPointer(e);
+    last = p;
+
+    if(mode === 'none'){
+      // Manipulate overlay
+      if(overlayLoaded && overlayVisible.checked && pointInOverlay(p)){
+        draggingOverlay = true;
+        rotatingOverlay = e.shiftKey;
+      }
+      return;
+    }
+
+    // Drawing modes
+    if(!baseLoaded) return;
+    const w = screenToWorld(p);
+    if(mode === 'route'){ beginRouteStyleIfNeeded(); currentRoute().push(w); }
+    if(mode === 'area'){ beginAreaStyleIfNeeded(); currentArea().push(w); }
+    render();
+  });
+
+  canvas.addEventListener('pointermove', (e) => {
+    if(!draggingOverlay) return;
+    if(!baseLoaded) return;
+    const p = getPointer(e);
+    const dx = p.x - last.x;
+    const dy = p.y - last.y;
+    last = p;
+
+    if(rotatingOverlay){
+      // rotate based on horizontal movement (simple & controllable)
+      overlayT.r += dx * 0.01;
+    } else {
+      overlayT.x += dx / fit.scale;
+      overlayT.y += dy / fit.scale;
+    }
+    updateFieldsFromTransform();
+    render();
+  });
+
+  canvas.addEventListener('pointerup', () => {
+    draggingOverlay = false;
+    rotatingOverlay = false;
+  });
+
+  canvas.addEventListener('dblclick', (e) => {
+    // Remove last point in drawing mode
+    if(mode === 'route' && currentRoute().length) currentRoute().pop();
+    if(mode === 'area' && currentArea().length) currentArea().pop();
+    cleanEmptySegments();
+    render();
+    e.preventDefault();
+  });
+
+  canvas.addEventListener('wheel', (e) => {
+    if(mode !== 'none') return; // keep wheel for overlay only
+    if(!overlayLoaded) return;
+    const delta = Math.sign(e.deltaY);
+    const factor = (delta > 0) ? 0.95 : 1.05;
+    overlayT.s *= factor;
+    overlayT.s = Math.max(0.05, Math.min(50, overlayT.s));
+    updateFieldsFromTransform();
+    render();
+    e.preventDefault();
+  }, { passive: false });
+
+  function exportMergedPng(){
+    if(!baseLoaded) { alert('請先載入底圖'); return; }
+    // Offscreen at base resolution
+    const out = document.createElement('canvas');
+    out.width = baseImg.width;
+    out.height = baseImg.height;
+    const g = out.getContext('2d');
+
+    // base
+    g.drawImage(baseImg, 0, 0);
+
+    // overlay
+    if(overlayLoaded && overlayVisible.checked){
+      g.save();
+      g.globalAlpha = Number(overlayAlpha.value);
+      const ow = overlayImg.width * overlayT.s;
+      const oh = overlayImg.height * overlayT.s;
+      const cx = overlayT.x + ow/2;
+      const cy = overlayT.y + oh/2;
+      g.translate(cx, cy);
+      g.rotate(overlayT.r);
+      g.translate(-ow/2, -oh/2);
+      g.drawImage(overlayImg, 0, 0, ow, oh);
+      g.restore();
+    }
+
+    // closed areas, multiple batches
+    ensureStyleArrays();
+    areas.forEach((seg, idx) => {
+      if(seg.length < 3) return;
+      const st = areaStyles[idx] || { color: drawColor, lineStyle };
+      g.save();
+      g.beginPath();
+      g.moveTo(seg[0].x, seg[0].y);
+      for(let i=1;i<seg.length;i++) g.lineTo(seg[i].x, seg[i].y);
+      g.closePath();
+      g.fillStyle = hexToRgba(st.color, 0.18);
+      g.fill();
+      g.strokeStyle = hexToRgba(st.color, 0.78);
+      g.lineWidth = 2;
+      g.stroke();
+      g.restore();
+    });
+    // route lines, multiple independent polylines
+    routes.forEach((seg, idx) => {
+      if(seg.length < 2) return;
+      const st = routeStyles[idx] || { color: drawColor, lineStyle };
+      g.save();
+      g.beginPath();
+      g.moveTo(seg[0].x, seg[0].y);
+      for(let i=1;i<seg.length;i++) g.lineTo(seg[i].x, seg[i].y);
+      g.strokeStyle = hexToRgba(st.color, 0.96);
+      g.lineWidth = 4;
+      g.lineJoin = 'round';
+      g.lineCap = 'round';
+      applyLineStyle(g, st.lineStyle, 4);
+      g.stroke();
+      if(st.lineStyle === 'double'){
+        g.strokeStyle = 'rgba(255,255,255,.85)';
+        g.lineWidth = 1.5;
+        g.setLineDash([]);
+        g.stroke();
+      }
+      g.restore();
+    });
+
+    out.toBlob((blob) => {
+      if(!blob) return;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      const ts = new Date().toISOString().replace(/[:.]/g,'-');
+      a.download = `契約圖空照圖套匯_${ts}.png`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    }, 'image/png');
+  }
+
+  function exportPointsJson(){
+    const payload = {
+      version: 1,
+      routes: routes.map((seg, i) => ({ points: seg, style: routeStyles[i] || { color: drawColor, lineStyle } })).filter(item => item.points.length > 0),
+      areas: areas.map((seg, i) => ({ points: seg, style: areaStyles[i] || { color: drawColor, lineStyle } })).filter(item => item.points.length > 0),
+      // legacy fields for older files/tools
+      route: routes.flat(),
+      area: areas.flat(),
+      overlay: overlayLoaded ? { ...overlayT, alpha: Number(overlayAlpha.value), visible: overlayVisible.checked } : null,
+      drawing: { color: drawColor, lineStyle }
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `overlay_points.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }
+
+  function importPointsJsonFile(file){
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const data = JSON.parse(String(reader.result || '{}'));
+        if(Array.isArray(data.routes) && data.routes.length){
+          if(data.routes[0] && Array.isArray(data.routes[0].points)){
+            routes = data.routes.map(item => item.points || []);
+            routeStyles = data.routes.map(item => item.style || { color: drawColor, lineStyle });
+          }else{
+            routes = data.routes;
+            routeStyles = routes.map(() => ({ color: drawColor, lineStyle }));
+          }
+        }else if(Array.isArray(data.route)) {
+          routes = data.route.length ? [data.route] : [[]];
+          routeStyles = [{ color: drawColor, lineStyle }];
+        }
+        if(Array.isArray(data.areas) && data.areas.length){
+          if(data.areas[0] && Array.isArray(data.areas[0].points)){
+            areas = data.areas.map(item => item.points || []);
+            areaStyles = data.areas.map(item => item.style || { color: drawColor, lineStyle });
+          }else{
+            areas = data.areas;
+            areaStyles = areas.map(() => ({ color: drawColor, lineStyle }));
+          }
+        }else if(Array.isArray(data.area)) {
+          areas = data.area.length ? [data.area] : [[]];
+          areaStyles = [{ color: drawColor, lineStyle }];
+        }
+        if(data.drawing){
+          drawColor = data.drawing.color || drawColor;
+          lineStyle = data.drawing.lineStyle || lineStyle;
+        }
+        if(data.overlay){
+          overlayT.x = Number(data.overlay.x ?? overlayT.x);
+          overlayT.y = Number(data.overlay.y ?? overlayT.y);
+          overlayT.s = Number(data.overlay.s ?? overlayT.s);
+          overlayT.r = Number(data.overlay.r ?? overlayT.r);
+          if(typeof data.overlay.alpha === 'number') overlayAlpha.value = String(data.overlay.alpha);
+          if(typeof data.overlay.visible === 'boolean') overlayVisible.checked = data.overlay.visible;
+          updateFieldsFromTransform();
+        }
+        ensureStyleArrays();
+        colorBtns.querySelectorAll('.swatch').forEach(b => b.classList.toggle('active', b.dataset.color === drawColor));
+        lineStyleBtns.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.style === lineStyle));
+        render();
+      }catch(err){
+        alert('JSON 解析失敗，請確認檔案內容');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  exportPng.addEventListener('click', exportMergedPng);
+  exportJson.addEventListener('click', exportPointsJson);
+  importJson.addEventListener('click', () => jsonFile.click());
+  jsonFile.addEventListener('change', (e) => {
+    const f = e.target.files?.[0];
+    if(f) importPointsJsonFile(f);
+  });
+
+  // Initial state
+  setMode('none');
+  updateFieldsFromTransform();
+  updateSegmentNote();
+  window.addEventListener('resize', resize);
+  resize();
+})();
+</script>
+</body>
+</html>
