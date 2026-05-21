@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="技師備考">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="技師備考">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon.svg">
+<title>土木技師備考</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f3ef;
+  --bg2: #ffffff;
+  --bg3: #eeebe5;
+  --card: #ffffff;
+  --card2: #f9f7f3;
+  --border: #e2ddd6;
+  --border2: #d4cfc6;
+  --gold: #b06a00;
+  --gold2: #c47a00;
+  --gold3: #e09820;
+  --gold-dim: #fdf0dc;
+  --green: #1a9e4a;
+  --green-dim: #e8f8ee;
+  --red: #d03030;
+  --red-dim: #fdeaea;
+  --blue: #2a72c4;
+  --blue-dim: #e6f0fb;
+  --purple: #7c52cc;
+  --purple-dim: #f0eafa;
+  --text: #1a1714;
+  --text2: #6a6050;
+  --text3: #a09880;
+  --tomato: #d43010;
+  --radius: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans TC', sans-serif;
+  max-width: 430px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+/* HEADER */
+.app-header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 18px 12px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+}
+.hd-row1 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.app-name { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--text3); text-transform: uppercase; }
+.hd-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); }
+.countdown-row { display: flex; align-items: baseline; gap: 8px; }
+.cd-num { font-family: 'DM Mono', monospace; font-size: 52px; font-weight: 500; color: var(--gold2); line-height: 1; letter-spacing: -2px; }
+.cd-label { font-size: 13px; color: var(--text2); }
+.cd-exam { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); margin-left: auto; padding-top: 8px; }
+.prog-track { height: 3px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold3)); border-radius: 3px; transition: width 1s ease; }
+.prog-row { display: flex; justify-content: space-between; margin-top: 4px; font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; }
+
+/* SCROLL AREA */
+.scroll-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 80px; }
+.scroll-area::-webkit-scrollbar { display: none; }
+
+/* PAGES */
+.page { display: none; }
+.page.active { display: block; }
+
+/* SECTION */
+.sec { padding: 14px 16px 0; }
+.sec-title { font-size: 10px; font-weight: 700; letter-spacing: 2.5px; color: var(--text3); text-transform: uppercase; margin-bottom: 10px; }
+
+/* CARDS */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.card2 { background: var(--card2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px; }
+
+/* STREAK */
+.streak-card { display: flex; align-items: center; gap: 14px; }
+.streak-flame { font-size: 36px; line-height: 1; }
+.streak-main { flex: 1; }
+.streak-num { font-family: 'DM Mono', monospace; font-size: 34px; font-weight: 500; color: var(--gold2); line-height: 1; }
+.streak-lbl { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.streak-dots { display: flex; gap: 5px; margin-top: 8px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border2); border: 1px solid var(--border2); }
+.dot.done { background: var(--gold2); border-color: var(--gold2); }
+.dot.today { background: transparent; border-color: var(--gold); animation: blink 1.5s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.streak-best { text-align: right; }
+.streak-best-num { font-family: 'DM Mono', monospace; font-size: 22px; color: var(--gold); }
+.streak-best-lbl { font-size: 10px; color: var(--text3); }
+
+/* CHECKLIST */
+.check-list { display: flex; flex-direction: column; gap: 8px; }
+.check-item { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 13px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: border-color 0.2s, background 0.2s; user-select: none; -webkit-user-select: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.check-item:active { transform: scale(0.985); }
+.check-item.done { border-color: #1a5030; background: var(--green-dim); }
+.ci-icon { width: 36px; height: 36px; border-radius: 11px; background: var(--bg3); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; transition: all 0.2s; }
+.check-item.done .ci-icon { background: var(--green); border-color: var(--green); }
+.ci-body { flex: 1; min-width: 0; }
+.ci-label { font-size: 14px; font-weight: 700; color: var(--text); }
+.check-item.done .ci-label { color: var(--green); }
+.ci-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.check-item.done .ci-sub { color: #4a9060; }
+
+/* HOURS CTRL */
+.hours-ctrl { display: flex; align-items: center; gap: 6px; background: var(--bg3); border-radius: 10px; padding: 4px 8px; border: 1px solid var(--border2); flex-shrink: 0; }
+.hc-btn { width: 28px; height: 28px; border-radius: 8px; border: none; background: var(--card2); color: var(--text); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; transition: background 0.15s; }
+.hc-btn:active { background: var(--gold); }
+.hc-val { font-family: 'DM Mono', monospace; font-size: 15px; min-width: 30px; text-align: center; color: var(--gold2); font-weight: 500; }
+
+/* POMODORO */
+.pomo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.pomo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.pomo-title { font-size: 13px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 6px; }
+.pomo-mode-toggle { display: flex; background: var(--bg3); border-radius: 8px; border: 1px solid var(--border2); overflow: hidden; }
+.pmt-btn { font-size: 10px; padding: 5px 10px; border: none; background: transparent; color: var(--text3); cursor: pointer; font-family: 'Noto Sans TC', sans-serif; font-weight: 700; transition: all 0.15s; }
+.pmt-btn.active { background: var(--gold-dim); color: var(--gold2); }
+.pomo-display { text-align: center; padding: 10px 0; }
+.pomo-time { font-family: 'DM Mono', monospace; font-size: 56px; font-weight: 500; color: var(--text); line-height: 1; letter-spacing: -2px; }
+.pomo-phase { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.pomo-dots { display: flex; justify-content: center; gap: 6px; margin: 10px 0; }
+.pd { width: 8px; height: 8px; border-radius: 50%; background: var(--border2); transition: background 0.3s; }
+.pd.done { background: var(--tomato); }
+.pd.current { background: var(--gold2); animation: blink 1s infinite; }
+.pomo-controls { display: flex; gap: 8px; }
+.pomo-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; font-family: 'Noto Sans TC', sans-serif; cursor: pointer; transition: all 0.15s; }
+.pomo-btn:active { transform: scale(0.97); }
+.pomo-start { background: var(--gold); color: #000; }
+.pomo-start.running { background: var(--red); color: white; }
+.pomo-reset { background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); flex: 0 0 52px; }
+
+/* GUILT/GOOD */
+.status-card { border-radius: var(--radius); padding: 13px 15px; display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.sc-guilt { background: var(--red-dim); border: 1px solid #5a1010; }
+.sc-good { background: var(--green-dim); border: 1px solid #1a5030; }
+.sc-neutral { background: var(--card2); border: 1px solid var(--border2); }
+.sc-emoji { font-size: 26px; flex-shrink: 0; }
+.sc-body { flex: 1; }
+.sc-title { font-size: 13px; font-weight: 700; }
+.sc-guilt .sc-title { color: var(--red); }
+.sc-good .sc-title { color: var(--green); }
+.sc-neutral .sc-title { color: var(--gold2); }
+.sc-msg { font-size: 12px; color: var(--text2); margin-top: 3px; line-height: 1.55; }
+
+/* QUOTE */
+.quote-card { border-left: 3px solid var(--gold); padding-left: 14px; margin-bottom: 10px; }
+.quote-label { font-size: 10px; color: var(--text3); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 5px; }
+.quote-text { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.65; }
+
+/* MICRO TASKS */
+.micro-list { display: flex; flex-direction: column; gap: 7px; }
+.micro-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 11px 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.2s; user-select: none; -webkit-user-select: none; }
+.micro-item:active { transform: scale(0.985); }
+.micro-item.done { border-color: #1a5030; background: var(--green-dim); }
+.mi-icon { width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; background: var(--bg3); border: 1px solid var(--border2); font-size: 15px; flex-shrink: 0; }
+.micro-item.done .mi-icon { background: var(--green); border-color: var(--green); }
+.mi-body { flex: 1; }
+.mi-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.micro-item.done .mi-title { color: var(--green); }
+.mi-sub { font-size: 10px; color: var(--text3); margin-top: 1px; }
+
+/* SAVE BTN */
+.save-btn { width: 100%; background: var(--gold); color: #000; border: none; border-radius: var(--radius); padding: 15px; font-size: 15px; font-weight: 900; font-family: 'Noto Sans TC', sans-serif; cursor: pointer; transition: all 0.2s; letter-spacing: 2px; margin-top: 10px; }
+.save-btn:active { background: var(--gold3); transform: scale(0.98); }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 8px; text-align: center; }
+.stat-n { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 500; color: var(--text); }
+.stat-l { font-size: 10px; color: var(--text3); margin-top: 3px; }
+
+/* WEEK CHART */
+.week-chart { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
+.chart-label { font-size: 10px; color: var(--text3); margin-bottom: 10px; }
+.bars { display: flex; align-items: flex-end; gap: 5px; height: 56px; margin-bottom: 5px; }
+.bar-w { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+.bar { width: 100%; border-radius: 3px 3px 0 0; background: #e8e4dc; min-height: 3px; transition: height 0.5s ease; }
+.bar.has { background: linear-gradient(180deg, var(--gold2), var(--gold)); }
+.bar.today { background: linear-gradient(180deg, var(--blue), #1a5aaa); }
+.day-lbl { font-size: 9px; color: var(--text3); margin-top: 4px; font-family: 'DM Mono', monospace; }
+.day-lbl.today { color: var(--blue); font-weight: 700; }
+
+/* SCHEDULE PAGE */
+.sched-toggle { display: flex; background: var(--bg3); border-radius: 10px; border: 1px solid var(--border2); overflow: hidden; margin-bottom: 12px; }
+.st-btn { flex: 1; padding: 9px; border: none; background: transparent; color: var(--text3); font-size: 12px; font-weight: 700; font-family: 'Noto Sans TC', sans-serif; cursor: pointer; transition: all 0.15s; }
+.st-btn.active { background: var(--gold-dim); color: var(--gold2); }
+.sched-table { width: 100%; border-collapse: collapse; }
+.sched-table th { font-size: 10px; color: var(--text3); font-weight: 700; padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border2); letter-spacing: 1px; }
+.sched-table td { font-size: 12px; padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.sched-table td:first-child { font-family: 'DM Mono', monospace; color: var(--text3); white-space: nowrap; font-size: 11px; }
+.sched-table td:nth-child(2) { color: var(--text); font-weight: 500; }
+.sched-table td:nth-child(3) { text-align: right; }
+.pomo-badge { display: inline-flex; align-items: center; gap: 3px; background: var(--red-dim); border: 1px solid #5a1010; border-radius: 6px; padding: 2px 6px; font-size: 10px; color: var(--tomato); font-weight: 700; }
+.energy-cards { display: flex; flex-direction: column; gap: 8px; }
+.energy-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 13px 14px; display: flex; gap: 10px; }
+.ec-num { width: 22px; height: 22px; border-radius: 50%; background: var(--gold-dim); border: 1px solid #f0d090; color: var(--gold2); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.ec-body {}
+.ec-title { font-size: 13px; font-weight: 700; color: var(--gold2); margin-bottom: 3px; }
+.ec-text { font-size: 12px; color: var(--text2); line-height: 1.6; }
+.passq-list { display: flex; flex-direction: column; gap: 8px; }
+.passq-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; cursor: pointer; user-select: none; -webkit-user-select: none; transition: all 0.2s; }
+.passq-item.checked { border-color: #1a5030; background: var(--green-dim); }
+.passq-item:active { transform: scale(0.985); }
+.pq-check { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all 0.2s; margin-top: 1px; }
+.passq-item.checked .pq-check { background: var(--green); border-color: var(--green); }
+.pq-body { flex: 1; }
+.pq-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.passq-item.checked .pq-title { color: var(--green); }
+.pq-sub { font-size: 11px; color: var(--text3); margin-top: 2px; line-height: 1.5; }
+
+/* STRATEGY PAGE */
+.phase-bar { display: flex; border-radius: 10px; overflow: hidden; height: 32px; margin-bottom: 12px; }
+.pb-seg { display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+.pb1 { background: #deeaf8; color: #1a5aaa; flex: 2; border-right: 1px solid var(--bg); }
+.pb2 { background: #d4f0e0; color: #0e7a38; flex: 2; border-right: 1px solid var(--bg); }
+.pb3 { background: #fde8c0; color: #8a4a00; flex: 1; }
+.phase-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.pp { font-size: 10px; padding: 3px 9px; border-radius: 20px; font-weight: 700; }
+.pp1 { background: #deeaf8; color: #1a5aaa; }
+.pp2 { background: #d4f0e0; color: #0e7a38; }
+.pp3 { background: #fde8c0; color: #8a4a00; }
+.subj-list { display: flex; flex-direction: column; gap: 8px; }
+.subj-row { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.subj-hd { display: flex; align-items: center; gap: 10px; padding: 13px 14px; cursor: pointer; user-select: none; -webkit-user-select: none; }
+.subj-hd:active { background: var(--bg3); }
+.s-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.s-name { font-size: 14px; font-weight: 700; flex: 1; }
+.s-hint { font-size: 10px; color: var(--text3); }
+.s-chev { font-size: 11px; color: var(--text3); transition: transform 0.2s; }
+.subj-row.open .s-chev { transform: rotate(90deg); }
+.subj-body { display: none; padding: 0 14px 12px; border-top: 1px solid var(--border); }
+.subj-row.open .subj-body { display: block; padding-top: 10px; }
+.ph-item { display: flex; gap: 8px; margin-bottom: 7px; }
+.ph-tag { font-size: 9px; padding: 2px 7px; border-radius: 20px; font-weight: 700; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+.ph1 { background: #deeaf8; color: #1a5aaa; }
+.ph2 { background: #d4f0e0; color: #0e7a38; }
+.ph3 { background: #fde8c0; color: #8a4a00; }
+.ph-desc { font-size: 11px; color: var(--text2); line-height: 1.6; }
+.tip-list { display: flex; flex-direction: column; gap: 7px; }
+.tip-item { background: var(--card); border: 1px solid var(--border); border-radius: 11px; padding: 11px 13px; display: flex; gap: 9px; }
+.tip-n { width: 20px; height: 20px; border-radius: 50%; background: var(--gold-dim); color: var(--gold2); font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; border: 1px solid #f0d8a0; }
+.tip-t { font-size: 11px; color: var(--text2); line-height: 1.65; }
+
+/* LOG PAGE */
+.log-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.log-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); }
+.log-badges { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; max-width: 68%; }
+.lb { font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: 700; }
+.lb-study { background: var(--blue-dim); color: var(--blue); }
+.lb-exam { background: var(--gold-dim); color: var(--gold2); }
+.lb-sport { background: var(--green-dim); color: var(--green); }
+.lb-class { background: var(--purple-dim); color: var(--purple); }
+
+/* MILESTONE */
+.ms-list { display: flex; flex-direction: column; gap: 8px; }
+.ms-item { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 13px 14px; display: flex; align-items: center; gap: 12px; }
+.ms-item.unlocked { border-color: #f0d090; background: #fffbf0; }
+.ms-icon { width: 42px; height: 42px; border-radius: 12px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; border: 1px solid var(--border2); }
+.ms-item.unlocked .ms-icon { background: #1a1200; border-color: var(--gold-dim); }
+.ms-item.locked .ms-icon { filter: grayscale(1) opacity(0.3); }
+.ms-info { flex: 1; }
+.ms-name { font-size: 13px; font-weight: 700; }
+.ms-item.locked .ms-name { color: var(--text3); }
+.ms-cond { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.ms-prog { height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 5px; }
+.ms-prog-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold3)); border-radius: 2px; }
+.ms-badge { font-size: 10px; padding: 4px 9px; border-radius: 20px; font-weight: 700; white-space: nowrap; }
+.mb-done { background: var(--gold-dim); color: var(--gold2); }
+.mb-lock { background: var(--bg3); color: var(--text3); }
+
+/* BOTTOM NAV */
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: var(--bg2); border-top: 1px solid var(--border); display: flex; padding: 6px 0; padding-bottom: calc(6px + env(safe-area-inset-bottom)); z-index: 100; box-shadow: 0 -2px 12px rgba(0,0,0,0.07); }
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 5px 0; border: none; background: transparent; color: var(--text3); transition: color 0.15s; }
+.nav-btn.active { color: var(--gold2); }
+.nav-icon { font-size: 20px; line-height: 1; }
+.nav-lbl { font-size: 9px; letter-spacing: 0.5px; font-weight: 700; font-family: 'Noto Sans TC', sans-serif; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(14px); background: #1a1714; border: 1px solid #2e2a22; color: #f5f3ef; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 500; opacity: 0; transition: all 0.28s; white-space: nowrap; z-index: 200; pointer-events: none; box-shadow: 0 4px 16px rgba(0,0,0,0.18); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* NOTIFY */
+.notify-banner { background: var(--blue-dim); border: 1px solid #c0d8f4; border-radius: 12px; padding: 11px 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.nb-text { flex: 1; }
+.nb-title { font-size: 12px; font-weight: 700; color: var(--blue); }
+.nb-sub { font-size: 10px; color: var(--text3); margin-top: 1px; }
+.nb-btn { background: var(--blue); color: white; border: none; border-radius: 8px; padding: 7px 12px; font-size: 11px; font-weight: 700; font-family: 'Noto Sans TC', sans-serif; cursor: pointer; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="app-header">
+  <div class="hd-row1">
+    <div class="app-name">土木技師備考</div>
+    <div class="hd-date" id="todayDisplay"></div>
+  </div>
+  <div class="countdown-row">
+    <div class="cd-num" id="daysLeft">200</div>
+    <div class="cd-label">天倒數</div>
+    <div class="cd-exam" id="examDateDisplay"></div>
+  </div>
+  <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+  <div class="prog-row"><span>開始備考</span><span id="progPct"></span></div>
+</div>
+
+<!-- SCROLL AREA -->
+<div class="scroll-area">
+
+<!-- ========== PAGE: 今日 ========== -->
+<div class="page active" id="page-today">
+  <div class="sec" style="padding-top:14px;">
+
+    <div id="notifyBanner" class="notify-banner" style="display:none;">
+      <div style="font-size:22px;">🔔</div>
+      <div class="nb-text">
+        <div class="nb-title" id="nb-title">開啟每日提醒通知</div>
+        <div class="nb-sub" id="nb-sub">08:00 / 21:00 / 23:00 自動提醒</div>
+      </div>
+      <button class="nb-btn" id="nb-btn" onclick="requestNotify()">開啟</button>
+    </div>
+
+    <div id="statusCard"></div>
+
+    <div class="quote-card card2">
+      <div class="quote-label">今日能量提醒</div>
+      <div class="quote-text" id="dailyQuote"></div>
+    </div>
+
+    <!-- STREAK -->
+    <div class="card">
+      <div class="streak-card">
+        <div class="streak-flame">🔥</div>
+        <div class="streak-main">
+          <div class="streak-num" id="streakNum">0</div>
+          <div class="streak-lbl">天連續打卡</div>
+          <div class="streak-dots" id="streakDots"></div>
+        </div>
+        <div class="streak-best">
+          <div class="streak-best-num" id="bestStreak">0</div>
+          <div class="streak-best-lbl">最高紀錄</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POMODORO -->
+    <div class="sec-title" style="margin-top:4px;">🍅 番茄鐘</div>
+    <div class="pomo-card">
+      <div class="pomo-header">
+        <div class="pomo-title">🍅 專注計時器</div>
+        <div class="pomo-mode-toggle">
+          <button class="pmt-btn active" id="pmt-output" onclick="setPomoMode('output')">輸出型<br><span style="font-size:9px;opacity:0.7">25+5</span></button>
+          <button class="pmt-btn" id="pmt-input" onclick="setPomoMode('input')">輸入型<br><span style="font-size:9px;opacity:0.7">50+10</span></button>
+        </div>
+      </div>
+      <div class="pomo-display">
+        <div class="pomo-time" id="pomoTime">25:00</div>
+        <div class="pomo-phase" id="pomoPhase">專注中 · 工作/做題</div>
+      </div>
+      <div class="pomo-dots" id="pomoDots"></div>
+      <div class="pomo-controls">
+        <button class="pomo-btn pomo-start" id="pomoStartBtn" onclick="togglePomo()">▶ 開始</button>
+        <button class="pomo-btn pomo-reset" onclick="resetPomo()">↺</button>
+      </div>
+    </div>
+
+    <!-- CHECKLIST -->
+    <div class="sec-title" style="margin-top:4px;">今日打卡</div>
+    <div class="check-list">
+      <div class="check-item" id="item-study">
+        <div class="ci-icon" id="icon-study">📖</div>
+        <div class="ci-body">
+          <div class="ci-label">讀書時數</div>
+          <div class="ci-sub" id="studySub">今日目標 ≥ 8 小時</div>
+        </div>
+        <div onclick="event.stopPropagation()">
+          <div class="hours-ctrl">
+            <button class="hc-btn" onclick="changeHours(-0.5)">−</button>
+            <div class="hc-val" id="hoursVal">0</div>
+            <button class="hc-btn" onclick="changeHours(0.5)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="check-item" id="item-exam">
+        <div class="ci-icon" id="icon-exam">📝</div>
+        <div class="ci-body">
+          <div class="ci-label">考古題</div>
+          <div class="ci-sub" id="examSub">今日目標 ≥ 2 題</div>
+        </div>
+        <div onclick="event.stopPropagation()">
+          <div class="hours-ctrl">
+            <button class="hc-btn" onclick="changeExam(-1)">−</button>
+            <div class="hc-val" id="examVal">0</div>
+            <button class="hc-btn" onclick="changeExam(1)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="check-item" id="item-sport" onclick="toggleCheck('sport')">
+        <div class="ci-icon" id="icon-sport">🏃</div>
+        <div class="ci-body">
+          <div class="ci-label">運動</div>
+          <div class="ci-sub">30 分鐘以上</div>
+        </div>
+      </div>
+      <div class="check-item" id="item-class" onclick="toggleCheck('class')">
+        <div class="ci-icon" id="icon-class">🎓</div>
+        <div class="ci-body">
+          <div class="ci-label">上課 / 錄影帶</div>
+          <div class="ci-sub">補習班 / 線上課程</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MICRO TASKS -->
+    <div class="sec-title" style="margin-top:14px;">⚡ 碎片任務</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:8px;">通勤、午休用。完成 1~3 個就算今天有把線接上。</div>
+    <div class="micro-list" id="microList"></div>
+
+    <button class="save-btn" onclick="saveToday()">✔ 儲存今日紀錄</button>
+
+    <!-- WEEK STATS -->
+    <div class="sec-title" style="margin-top:14px;">本週統計</div>
+    <div class="stats-grid" style="margin-bottom:10px;">
+      <div class="stat-box"><div class="stat-n" id="statHours">0</div><div class="stat-l">讀書時數</div></div>
+      <div class="stat-box"><div class="stat-n" id="statDays">0</div><div class="stat-l">打卡天數</div></div>
+      <div class="stat-box"><div class="stat-n" id="statExam">0</div><div class="stat-l">考古題數</div></div>
+    </div>
+    <div class="week-chart" style="margin-bottom:14px;">
+      <div class="chart-label">7天讀書時數 (最高 10hr)</div>
+      <div class="bars" id="weekBars"></div>
+      <div style="display:flex;gap:5px;" id="weekLabels"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE: 時程 ========== -->
+<div class="page" id="page-sched">
+  <div class="sec" style="padding-top:14px;">
+    <div class="sched-toggle">
+      <button class="st-btn active" id="st-weekday" onclick="setSched('weekday')">🕒 平日</button>
+      <button class="st-btn" id="st-weekend" onclick="setSched('weekend')">🌟 假日</button>
+    </div>
+
+    <div class="sec-title">🍅 番茄鐘操作原則</div>
+    <div class="energy-cards" style="margin-bottom:14px;">
+      <div class="energy-card">
+        <div class="ec-num">出</div>
+        <div class="ec-body">
+          <div class="ec-title">輸出型（工作/做題）</div>
+          <div class="ec-text">25分鐘專注 + 5分鐘休息。每完成4顆，給自己20~30分鐘貓咪補給時間。</div>
+        </div>
+      </div>
+      <div class="energy-card">
+        <div class="ec-num">入</div>
+        <div class="ec-body">
+          <div class="ec-title">輸入型（上課/錄影帶）</div>
+          <div class="ec-text">50分鐘專注 + 10分鐘休息，保持思路連貫，效果遠比分段好。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-title" id="sched-title">🕒 平日時程表</div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="sched-table" id="schedTable"></table>
+    </div>
+
+    <div class="sec-title" style="margin-top:14px;">🧠 給自己的能量提醒</div>
+    <div class="energy-cards" style="margin-bottom:14px;">
+      <div class="energy-card">
+        <div class="ec-num">1</div>
+        <div class="ec-body">
+          <div class="ec-title">時數計算的自信</div>
+          <div class="ec-text">平日「4.5hr（下午）＋3.5hr（晚上課時）＝8小時」，不要因為在教室就覺得不算讀書，那正是高效率輸入。</div>
+        </div>
+      </div>
+      <div class="energy-card">
+        <div class="ec-num">2</div>
+        <div class="ec-body">
+          <div class="ec-title">精準的 17:35</div>
+          <div class="ec-text">17:35鬧鐘響就立刻合上書本。10分鐘準備＋45分鐘通勤是你的「心理緩衝區」，在車上放空，避免倦怠切換。</div>
+        </div>
+      </div>
+      <div class="energy-card">
+        <div class="ec-num">3</div>
+        <div class="ec-body">
+          <div class="ec-title">關於懶散的錯覺</div>
+          <div class="ec-text">一天能工作3小時又讀書8小時，這叫「高負載」，感到疲憊完全正常。跟懶散無關。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 考上特質 -->
+    <div class="sec-title">🏆 考上特質自我檢核</div>
+    <div class="passq-list" id="passqList" style="margin-bottom:14px;"></div>
+  </div>
+</div>
+
+<!-- ========== PAGE: 策略 ========== -->
+<div class="page" id="page-strategy">
+  <div class="sec" style="padding-top:14px;">
+    <div class="sec-title">備考三階段（共 200 天）</div>
+    <div class="phase-bar">
+      <div class="pb-seg pb1">第一階段<br>重建基礎</div>
+      <div class="pb-seg pb2">第二階段<br>刷題攻弱</div>
+      <div class="pb-seg pb3">衝刺</div>
+    </div>
+    <div class="phase-pills">
+      <span class="pp pp1">Day 1–80 重建基礎</span>
+      <span class="pp pp2">Day 81–160 刷題攻弱</span>
+      <span class="pp pp3">Day 161–200 模考衝刺</span>
+    </div>
+
+    <div class="sec-title">各科備考策略</div>
+    <div class="subj-list" id="subjList" style="margin-bottom:14px;"></div>
+
+    <div class="sec-title">共通應試原則</div>
+    <div class="tip-list" id="tipList" style="margin-bottom:14px;"></div>
+
+    <div class="sec-title">💡 心理話</div>
+    <div class="card2" style="margin-bottom:14px;">
+      <div style="font-size:13px;color:var(--text);line-height:1.8;">
+        「難過」是因為你<strong style="color:var(--gold2)">太想考上</strong>，這代表動力非常充足。<br>
+        每天8小時，持之以恆到11月，累積總時數會超過 <strong style="color:var(--gold2)">1000小時</strong>。<br><br>
+        <strong style="color:var(--text)">一個唸了1000小時且身心健康的工程師，沒有理由考不上。</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE: 紀錄 ========== -->
+<div class="page" id="page-log">
+  <div class="sec" style="padding-top:14px;">
+    <div class="sec-title">歷史紀錄</div>
+    <div id="logList"></div>
+  </div>
+</div>
+
+<!-- ========== PAGE: 獎勵 ========== -->
+<div class="page" id="page-reward">
+  <div class="sec" style="padding-top:14px;">
+    <div class="sec-title">小目標獎勵</div>
+    <div class="ms-list" id="msList"></div>
+  </div>
+</div>
+
+</div><!-- end scroll-area -->
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-btn active" id="nav-today" onclick="goPage('today')"><div class="nav-icon">📅</div><div class="nav-lbl">今日</div></button>
+  <button class="nav-btn" id="nav-sched" onclick="goPage('sched')"><div class="nav-icon">🕒</div><div class="nav-lbl">時程</div></button>
+  <button class="nav-btn" id="nav-strategy" onclick="goPage('strategy')"><div class="nav-icon">📋</div><div class="nav-lbl">策略</div></button>
+  <button class="nav-btn" id="nav-log" onclick="goPage('log')"><div class="nav-icon">📊</div><div class="nav-lbl">紀錄</div></button>
+  <button class="nav-btn" id="nav-reward" onclick="goPage('reward')"><div class="nav-icon">🏆</div><div class="nav-lbl">獎勵</div></button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// CONSTANTS
+// ============================================================
+const EXAM_DATE = new Date('2026-11-16');
+const TOTAL_DAYS = 200;
+const STUDY_GOAL = 8;
+const EXAM_GOAL = 2;
+
+const WEEKDAY_SCHED = [
+  { time:'08:00–09:00', act:'早起運動（含準備）', pomo:null, note:'啟動血氧，後續更專注' },
+  { time:'09:00–12:00', act:'案件處理（工作）', pomo:'6顆', note:'慢慢做、穩定產出' },
+  { time:'12:00–13:00', act:'午餐＋擼貓放空', pomo:null, note:'徹底關閉大腦邏輯' },
+  { time:'13:00–17:30', act:'自主讀書 / 錄影帶', pomo:'8顆', note:'核心讀書時段 4.5hr' },
+  { time:'17:30–17:35', act:'讀書收尾、簡單伸展', pomo:null, note:'5分鐘大腦切換' },
+  { time:'17:35–17:45', act:'出門前準備', pomo:null, note:'換裝、帶齊東西' },
+  { time:'17:45–18:30', act:'通勤至補習班', pomo:null, note:'45分鐘車程，閉目養神' },
+  { time:'18:30–22:00', act:'硬性課時（上課/錄影）', pomo:'6顆', note:'晚間讀書時數 3.5hr' },
+  { time:'22:00–22:45', act:'下課通勤回家', pomo:null, note:'可複習今日重點' },
+];
+
+const WEEKEND_SCHED = [
+  { time:'07:30–08:15', act:'晨間運動 / 簡單早餐', pomo:null, note:'啟動血氧' },
+  { time:'08:15–09:00', act:'通勤至教室', pomo:null, note:'45分鐘' },
+  { time:'09:00–12:00', act:'上午課程', pomo:'6顆', note:'高效輸入' },
+  { time:'12:00–13:00', act:'午休用餐', pomo:null, note:'徹底放鬆' },
+  { time:'13:00–17:30', act:'下午課程', pomo:'9顆', note:'核心輸入時段' },
+  { time:'17:30–18:15', act:'下課通勤', pomo:null, note:'' },
+  { time:'18:15–19:30', act:'晚餐＋補償性擼貓', pomo:null, note:'貓咪補給時間' },
+  { time:'19:30–21:00', act:'本日重點回顧', pomo:'3顆', note:'記憶鞏固' },
+  { time:'21:00–23:00', act:'自由時間 / 耍廢', pomo:null, note:'充飽電量' },
+];
+
+const QUOTES = [
+  '時數計算的自信：平日4.5＋3.5＝8小時，這是真正的讀書，不要低估自己。',
+  '今天不求完美，先求有寫進腦子。',
+  '你現在累，不代表今天可以作廢。',
+  '讀書不是拼情緒，是拼回收率。',
+  '先完成，再檢討。順序不要倒。',
+  '不必每次都讀很猛，但不能一直斷。',
+  '你要的是上榜，不是感覺自己很努力。',
+  '現在多做一題，考場上就少慌一題。',
+  '情緒可以有，進度不能沒有。',
+  '穩定比爆衝重要，尤其在你很忙的時候。',
+  '每天8小時，持之以恆到11月，總時數會超過1000小時。',
+  '一個唸了1000小時的工程師，沒有理由考不上。',
+  '17:35鬧鐘響就合上書本——通勤是你的緩衝區，好好放空。',
+  '感到疲憊是正常的，這叫高負載，跟懶散無關。',
+  '動手算：不要只用眼睛看錄影帶，手一定要跟著算過一次公式。',
+];
+
+const GUILT = [
+  { e:'😤', t:'你今天還沒讀書喔！', m:'競爭對手現在正在努力。還剩 {d} 天，一天都不能浪費！' },
+  { e:'😰', t:'還沒達標，加油！', m:'技師考試不等人，再不衝刺，明年還要再戰一次。' },
+  { e:'🙁', t:'今天進度還沒完成…', m:'連續打卡快斷了！你真的要讓昨天的努力白費嗎？' },
+  { e:'😬', t:'欸，你是不是忘了什麼？', m:'還剩 {d} 天考試，今天的紀錄還是空的喔！' },
+  { e:'😑', t:'今天讀書時數不足', m:'8小時是目標，快補起來！考試不會因為你忙就延後。' },
+];
+
+const MICRO_POOL = [
+  { icon:'📐', title:'看 1 個公式', sub:'確認用途與適用條件即可' },
+  { icon:'🧩', title:'背 1 個定義', sub:'10分鐘內口頭重述一次' },
+  { icon:'✍️', title:'重畫 1 張觀念圖', sub:'不求漂亮，追求能默寫' },
+  { icon:'📝', title:'重看 1 題錯題', sub:'只看題幹與解題邏輯' },
+  { icon:'📚', title:'翻 2 頁筆記', sub:'抓一個昨天忘掉的點' },
+  { icon:'⏱️', title:'限時構思 1 題架構', sub:'不求完整，先寫骨架' },
+  { icon:'🔁', title:'複誦 1 個流程', sub:'施工步驟、判斷流程或公式推導' },
+  { icon:'🎯', title:'確認 1 個易錯點', sub:'把常錯原因講出來一次' },
+  { icon:'🧮', title:'手算 1 道例題', sub:'跟著錄影帶老師算過一次' },
+  { icon:'📖', title:'通勤聽課15分', sub:'輸入型50分鐘，聽半段也算' },
+];
+
+const PASS_QUALITIES = [
+  { title:'不中斷', sub:'即便今天很累，也要去補習班或聽一小時錄影帶。' },
+  { title:'動手算', sub:'不要只用眼睛看錄影帶，手一定要跟著老師算過一次公式。' },
+  { title:'不糾結', sub:'遇到卡住的難題，先跳過，等下一個番茄鐘再回來。' },
+];
+
+const SUBJECTS = [
+  { name:'結構學', dot:'#4a90d9', hint:'配分最高 每天≥1hr',
+    phases:[
+      {cls:'ph1',tag:'第一階段',text:'靜定→超靜定重建：梁、桁架、撓度公式。用A4手寫公式表，邊寫邊記。'},
+      {cls:'ph2',tag:'第二階段',text:'刷歷屆10年題，依題型分類錯題本。彎矩圖、影響線為必考核心。'},
+      {cls:'ph3',tag:'第三階段',text:'計時模擬（每題≤18min），鎖定三跨連續梁與斜桁架。'}
+    ]},
+  { name:'材料力學', dot:'#2db55d', hint:'與結構重疊高 一起讀',
+    phases:[
+      {cls:'ph1',tag:'第一階段',text:'應力應變、撓曲、剪力中心、挫曲——這四塊占八成題目，先把公式推導一遍。'},
+      {cls:'ph2',tag:'第二階段',text:'Mohr\'s circle、composite beam為主攻，確保不失分。'},
+      {cls:'ph3',tag:'第三階段',text:'與結構學合併計時練習，習慣在壓力下切換題型。'}
+    ]},
+  { name:'土壤力學', dot:'#e8a020', hint:'公式固定 背熟就穩',
+    phases:[
+      {cls:'ph1',tag:'第一階段',text:'建立概念地圖：分類→滲透→壓密→剪力強度→穩定分析，每章一張圖表。'},
+      {cls:'ph2',tag:'第二階段',text:'壓密沉陷、Terzaghi承載力、邊坡穩定——三類必出，逐類刷完。'},
+      {cls:'ph3',tag:'第三階段',text:'重點練e-log p曲線判讀與φ–c計算，確保不出錯。'}
+    ]},
+  { name:'施工法', dot:'#e84080', hint:'實務是優勢 補規範數字',
+    phases:[
+      {cls:'ph1',tag:'第一階段',text:'梳理混凝土、鋼構、深開挖、路基施工的標準規範數字，工地經驗直接換分。'},
+      {cls:'ph2',tag:'第二階段',text:'刷歷屆申論題，練習「目的→方法→注意事項」三段式架構。'},
+      {cls:'ph3',tag:'第三階段',text:'補充近3年新題型（綠建築、BIM），各約1~2hr即可。'}
+    ]},
+  { name:'測量學', dot:'#9b6ee8', hint:'得分率最高 衝滿分',
+    phases:[
+      {cls:'ph1',tag:'第一階段',text:'水準、導線、三角測量公式整理成A3速查表，背到能默寫。'},
+      {cls:'ph2',tag:'第二階段',text:'歷屆幾乎是套公式，刷30題後準確率應超80%，可縮短投入時間。'},
+      {cls:'ph3',tag:'第三階段',text:'最後兩週每天20~30min維持手感，精力留給結構與土壤。'}
+    ]},
+];
+
+const TIPS = [
+  '先刷題再讀書：每章讀完立刻做歷屆5題，找不會的再回頭看，避免低效通讀。',
+  '錯題本是核心資產：每道錯題寫「錯誤原因＋正確思路」，考前一週只看錯題本。',
+  '申論題要練寫字速度：每週至少手寫一題完整申論，字數要求高，平時不練容易時間不夠。',
+  '結構＋材力每天固定1小時，不能中斷超過2天，數學感一旦冷掉要花3倍時間暖身。',
+  '第三階段（Day161+）停止讀新內容，只做整本模擬試卷，嚴格計時，每次考後分析失分。',
+];
+
+const MILESTONES = [
+  { id:'s7',   icon:'⚡', name:'第一週完整打卡',  cond:'連續7天',      streakNeeded:7 },
+  { id:'s14',  icon:'🔥', name:'兩週不間斷',       cond:'連續14天',     streakNeeded:14 },
+  { id:'s30',  icon:'💪', name:'一個月鐵人',       cond:'連續30天',     streakNeeded:30 },
+  { id:'s60',  icon:'🦁', name:'兩個月猛獸',       cond:'連續60天',     streakNeeded:60 },
+  { id:'h50',  icon:'📚', name:'讀滿 50 小時',     cond:'累積50hr',     hoursNeeded:50 },
+  { id:'h100', icon:'🧠', name:'讀滿 100 小時',    cond:'累積100hr',    hoursNeeded:100 },
+  { id:'h200', icon:'🎯', name:'讀滿 200 小時',    cond:'累積200hr',    hoursNeeded:200 },
+  { id:'h500', icon:'🏅', name:'讀滿 500 小時',    cond:'累積500hr',    hoursNeeded:500 },
+  { id:'e20',  icon:'📝', name:'考古題 20 題',     cond:'累積20題',     examTotalNeeded:20 },
+  { id:'e100', icon:'📖', name:'考古題 100 題',    cond:'累積100題',    examTotalNeeded:100 },
+  { id:'sp10', icon:'🏃', name:'運動 10 天',       cond:'完成10天運動', sportDaysNeeded:10 },
+  { id:'done', icon:'🎓', name:'備考完成！',        cond:'考試日倒數≤0', daysNeeded:0 },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  todayChecks: { sport:false, class:false },
+  studyHours: 0,
+  examCount: 0,
+  logs: [],
+  streak: 0,
+  bestStreak: 0,
+  lastSavedDate: null,
+  microTasks: { date:null, tasks:[], done:[] },
+  passqDone: [false, false, false],
+};
+let notifyGranted = false;
+
+// POMODORO STATE
+let pomoMode = 'output'; // output=25+5, input=50+10
+let pomoRunning = false;
+let pomoInterval = null;
+let pomoSecondsLeft = 25 * 60;
+let pomoPhase = 'focus'; // focus | break
+let pomoCycleCount = 0;
+const POMO_CONFIG = {
+  output: { focus: 25*60, break: 5*60, label:'工作/做題' },
+  input:  { focus: 50*60, break: 10*60, label:'上課/錄影帶' },
+};
+
+// ============================================================
+// UTILS
+// ============================================================
+function todayKey() { const n=new Date(); return `${n.getFullYear()}-${n.getMonth()+1}-${n.getDate()}`; }
+const SAVE_KEY = 'civil_exam_data'; // 永久固定，之後所有版本都用這個 key
+function load() {
+  // 從所有舊版 key 撈資料並合併
+  const oldKeys = ['civil_v1','civil_v2','civil_v3','civil_tracker','civil'];
+  let mergedLogs = [];
+  let bestState = null;
+  [...oldKeys, SAVE_KEY].forEach(k => {
+    const raw = localStorage.getItem(k);
+    if (!raw) return;
+    try {
+      const p = JSON.parse(raw);
+      // 合併 logs（以日期去重）
+      (p.logs || []).forEach(l => { if (!mergedLogs.find(x => x.date === l.date)) mergedLogs.push(l); });
+      // 選最完整的 state（streak 最高）
+      if (!bestState || (p.streak || 0) >= (bestState.streak || 0)) bestState = p;
+    } catch(e) {}
+  });
+  if (bestState) {
+    state = { ...state, ...bestState };
+    mergedLogs.sort((a, b) => a.date.localeCompare(b.date));
+    state.logs = mergedLogs;
+    save(); // 立刻寫入固定 key
+  }
+}
+function save() { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
+function getDaysLeft() { return Math.max(0, Math.ceil((EXAM_DATE - new Date()) / 86400000)); }
+function seeded(str, mod) { let h=0; for(let i=0;i<str.length;i++) h=(h*31+str.charCodeAt(i))%1e9; return Math.abs(h)%mod; }
+function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+function goPage(p) {
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('nav-'+p).classList.add('active');
+  document.querySelector('.scroll-area').scrollTop = 0;
+}
+
+// ============================================================
+// COUNTDOWN
+// ============================================================
+function updateCountdown() {
+  const now=new Date(), diff=getDaysLeft();
+  document.getElementById('daysLeft').textContent=diff;
+  const dn=['日','一','二','三','四','五','六'];
+  document.getElementById('todayDisplay').textContent=`${now.getMonth()+1}/${now.getDate()} (${dn[now.getDay()]})`;
+  document.getElementById('examDateDisplay').textContent=`▸ 考試 2026/11/16`;
+  const elapsed=TOTAL_DAYS-diff, pct=Math.min(100,Math.round((elapsed/TOTAL_DAYS)*100));
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progPct').textContent=pct+'% 完成';
+}
+
+// ============================================================
+// POMODORO
+// ============================================================
+function setPomoMode(m) {
+  if(pomoRunning) return;
+  pomoMode=m;
+  document.getElementById('pmt-output').classList.toggle('active', m==='output');
+  document.getElementById('pmt-input').classList.toggle('active', m==='input');
+  resetPomo();
+}
+function togglePomo() {
+  if(pomoRunning) { pausePomo(); } else { startPomo(); }
+}
+function startPomo() {
+  pomoRunning=true;
+  const btn=document.getElementById('pomoStartBtn');
+  btn.textContent='⏸ 暫停'; btn.classList.add('running');
+  pomoInterval=setInterval(tickPomo, 1000);
+}
+function pausePomo() {
+  pomoRunning=false;
+  clearInterval(pomoInterval);
+  const btn=document.getElementById('pomoStartBtn');
+  btn.textContent='▶ 繼續'; btn.classList.remove('running');
+}
+function resetPomo() {
+  clearInterval(pomoInterval); pomoRunning=false; pomoPhase='focus'; pomoCycleCount=0;
+  pomoSecondsLeft=POMO_CONFIG[pomoMode].focus;
+  const btn=document.getElementById('pomoStartBtn');
+  btn.textContent='▶ 開始'; btn.classList.remove('running');
+  renderPomo();
+}
+function tickPomo() {
+  pomoSecondsLeft--;
+  if(pomoSecondsLeft<=0) {
+    if(pomoPhase==='focus') {
+      pomoCycleCount++;
+      pomoPhase='break';
+      pomoSecondsLeft=POMO_CONFIG[pomoMode].break;
+      showToast('🍅 番茄完成！休息一下');
+      try { new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAA...').play(); } catch(e){}
+    } else {
+      pomoPhase='focus';
+      pomoSecondsLeft=POMO_CONFIG[pomoMode].focus;
+      showToast('⚡ 休息結束！繼續衝');
+    }
+  }
+  renderPomo();
+}
+function renderPomo() {
+  const m=Math.floor(pomoSecondsLeft/60), s=pomoSecondsLeft%60;
+  document.getElementById('pomoTime').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const cfg=POMO_CONFIG[pomoMode];
+  document.getElementById('pomoPhase').textContent=pomoPhase==='focus'
+    ? `🎯 專注中 · ${cfg.label}` : `☕ 休息中`;
+  // dots
+  const dots=document.getElementById('pomoDots'); dots.innerHTML='';
+  const maxDots=4;
+  for(let i=0;i<maxDots;i++){
+    const d=document.createElement('div');
+    d.className='pd'+(i<pomoCycleCount%maxDots?(' done'):(i===pomoCycleCount%maxDots&&pomoPhase==='break'?' done':''));
+    dots.appendChild(d);
+  }
+}
+
+// ============================================================
+// CHECKLIST
+// ============================================================
+function changeHours(d){ state.studyHours=Math.max(0,Math.min(16,+(state.studyHours+d).toFixed(1))); renderToday(); }
+function changeExam(d){ state.examCount=Math.max(0,state.examCount+d); renderToday(); }
+function toggleCheck(k){ state.todayChecks[k]=!state.todayChecks[k]; renderToday(); showToast(state.todayChecks[k]?'✅ 打卡！':'↩ 取消'); }
+
+function renderToday() {
+  // streak dots
+  const dots=document.getElementById('streakDots'); dots.innerHTML='';
+  state.logs.slice(-6).forEach(()=>{ const d=document.createElement('div');d.className='dot done';dots.appendChild(d); });
+  const td=document.createElement('div'); td.className=state.lastSavedDate===todayKey()?'dot done':'dot today'; dots.appendChild(td);
+  document.getElementById('streakNum').textContent=state.streak;
+  document.getElementById('bestStreak').textContent=state.bestStreak;
+
+  // checklist
+  document.getElementById('hoursVal').textContent=state.studyHours;
+  const sEl=document.getElementById('item-study'), sIc=document.getElementById('icon-study');
+  if(state.studyHours>=STUDY_GOAL){ sEl.classList.add('done'); sIc.textContent='✓'; document.getElementById('studySub').textContent=`達標 ✓ (${state.studyHours}hr)`; }
+  else{ sEl.classList.remove('done'); sIc.textContent='📖'; document.getElementById('studySub').textContent=`今日目標 ≥ ${STUDY_GOAL} 小時 (現在 ${state.studyHours}hr)`; }
+
+  document.getElementById('examVal').textContent=state.examCount;
+  const eEl=document.getElementById('item-exam'), eIc=document.getElementById('icon-exam');
+  if(state.examCount>=EXAM_GOAL){ eEl.classList.add('done'); eIc.textContent='✓'; document.getElementById('examSub').textContent=`達標 ✓ (${state.examCount}題)`; }
+  else{ eEl.classList.remove('done'); eIc.textContent='📝'; document.getElementById('examSub').textContent=`今日目標 ≥ ${EXAM_GOAL} 題 (現在 ${state.examCount}題)`; }
+
+  ['sport','class'].forEach(k=>{
+    const el=document.getElementById('item-'+k), ic=document.getElementById('icon-'+k);
+    const icons={sport:'🏃',class:'🎓'};
+    if(state.todayChecks[k]){el.classList.add('done');ic.textContent='✓';}
+    else{el.classList.remove('done');ic.textContent=icons[k];}
+  });
+
+  renderWeek(); renderStatus(); renderQuote(); renderMicro();
+}
+
+// ============================================================
+// STATUS CARD
+// ============================================================
+function renderStatus() {
+  const sc=document.getElementById('statusCard');
+  const saved=state.lastSavedDate===todayKey();
+  const log=state.logs.find(l=>l.date===todayKey());
+  const d=getDaysLeft(); const h=new Date().getHours();
+  let html='';
+  if(saved&&log){
+    const sOk=(log.hours||0)>=STUDY_GOAL, eOk=(log.examCount||0)>=EXAM_GOAL;
+    if(sOk&&eOk){
+      html=`<div class="status-card sc-good"><div class="sc-emoji">🎉</div><div class="sc-body"><div class="sc-title">今日全達標！超棒的！</div><div class="sc-msg">讀書${log.hours}hr ✓  考古題${log.examCount}題 ✓  繼續保持！</div></div></div>`;
+    } else {
+      const need=[]; if(!sOk) need.push(`還差${(STUDY_GOAL-(log.hours||0)).toFixed(1)}小時讀書`); if(!eOk) need.push(`考古題還差${EXAM_GOAL-(log.examCount||0)}題`);
+      html=`<div class="status-card sc-guilt"><div class="sc-emoji">📖</div><div class="sc-body"><div class="sc-title">${need.join('・')}</div><div class="sc-msg">還剩 ${d} 天，繼續加油！</div></div></div>`;
+    }
+  } else {
+    const g=h<12?{e:'☀️',t:'早安！今天的目標等你',m:`讀書${STUDY_GOAL}hr＋考古題${EXAM_GOAL}題，還剩${d}天！`}
+      :h<18?{e:'😬',t:'下午了！進度還沒記錄',m:`別讓今天白過！${d}天後就考試了。`}
+      :GUILT[Math.floor(seeded(todayKey()+h,GUILT.length))];
+    const msg=(g.m||'').replace('{d}',d);
+    html=`<div class="status-card sc-neutral"><div class="sc-emoji">${g.e}</div><div class="sc-body"><div class="sc-title">${g.t}</div><div class="sc-msg">${msg}</div></div></div>`;
+  }
+  sc.innerHTML=html;
+}
+
+// ============================================================
+// QUOTE
+// ============================================================
+function renderQuote() {
+  document.getElementById('dailyQuote').textContent=QUOTES[seeded(todayKey(),QUOTES.length)];
+}
+
+// ============================================================
+// MICRO TASKS
+// ============================================================
+function ensureMicro() {
+  const key=todayKey();
+  if(state.microTasks&&state.microTasks.date===key&&state.microTasks.tasks?.length) return;
+  const picked=[]; const used=new Set(); let salt=0;
+  while(picked.length<3&&used.size<MICRO_POOL.length){ const idx=seeded(key+'-'+salt,MICRO_POOL.length); salt++; if(used.has(idx))continue; used.add(idx); picked.push(MICRO_POOL[idx]); }
+  state.microTasks={date:key,tasks:picked,done:new Array(picked.length).fill(false)};
+}
+function renderMicro() {
+  ensureMicro();
+  const list=document.getElementById('microList'); list.innerHTML='';
+  state.microTasks.tasks.forEach((t,i)=>{
+    const done=!!state.microTasks.done[i];
+    const el=document.createElement('div'); el.className='micro-item'+(done?' done':'');
+    el.onclick=()=>{ state.microTasks.done[i]=!state.microTasks.done[i]; save(); renderMicro(); showToast(state.microTasks.done[i]?'⚡ 碎片完成':'↩ 取消'); };
+    el.innerHTML=`<div class="mi-icon">${done?'✓':t.icon}</div><div class="mi-body"><div class="mi-title">${t.title}</div><div class="mi-sub">${t.sub}</div></div>`;
+    list.appendChild(el);
+  });
+}
+
+// ============================================================
+// WEEK STATS + CHART
+// ============================================================
+function renderWeek() {
+  const now=new Date(); let h=0,d=0,e=0;
+  for(let i=6;i>=0;i--){ const dt=new Date(now); dt.setDate(dt.getDate()-i); const k=`${dt.getFullYear()}-${dt.getMonth()+1}-${dt.getDate()}`; const l=state.logs.find(x=>x.date===k); if(l){h+=l.hours||0;d++;e+=l.examCount||0;} }
+  document.getElementById('statHours').textContent=h.toFixed(1);
+  document.getElementById('statDays').textContent=d;
+  document.getElementById('statExam').textContent=e;
+  // chart
+  const bars=document.getElementById('weekBars'), lbls=document.getElementById('weekLabels');
+  bars.innerHTML=''; lbls.innerHTML='';
+  const dn=['日','一','二','三','四','五','六'], mx=10;
+  for(let i=6;i>=0;i--){
+    const dt=new Date(now); dt.setDate(dt.getDate()-i); const k=`${dt.getFullYear()}-${dt.getMonth()+1}-${dt.getDate()}`;
+    const l=state.logs.find(x=>x.date===k), hh=l?(l.hours||0):0, isT=i===0;
+    const bw=document.createElement('div'); bw.className='bar-w';
+    const b=document.createElement('div'); b.className='bar'+(isT?' today':hh>0?' has':'');
+    b.style.height=Math.max(3,Math.round((hh/mx)*56))+'px'; bw.appendChild(b); bars.appendChild(bw);
+    const lb=document.createElement('div'); lb.className='day-lbl'+(isT?' today':'');
+    lb.style.flex='1'; lb.style.textAlign='center'; lb.textContent=dn[dt.getDay()]; lbls.appendChild(lb);
+  }
+}
+
+// ============================================================
+// SAVE
+// ============================================================
+function saveToday() {
+  const key=todayKey();
+  const hasAny=state.studyHours>0||state.examCount>0||state.todayChecks.sport||state.todayChecks.class;
+  if(!hasAny){showToast('⚠️ 至少完成一項才能打卡！');return;}
+  const isNew=state.lastSavedDate!==key;
+  ensureMicro();
+  const microDone=(state.microTasks.done||[]).filter(Boolean).length;
+  const entry={date:key,hours:state.studyHours,examCount:state.examCount,sport:state.todayChecks.sport,class:state.todayChecks.class,microDone};
+  const ex=state.logs.findIndex(l=>l.date===key);
+  if(ex>=0) state.logs[ex]=entry; else state.logs.push(entry);
+  if(isNew){
+    const y=new Date(); y.setDate(y.getDate()-1);
+    const yk=`${y.getFullYear()}-${y.getMonth()+1}-${y.getDate()}`;
+    state.streak=state.lastSavedDate===yk?state.streak+1:1;
+    state.bestStreak=Math.max(state.bestStreak,state.streak);
+  }
+  state.lastSavedDate=key; save();
+  const allDone=state.studyHours>=STUDY_GOAL&&state.examCount>=EXAM_GOAL;
+  showToast(allDone?'🎉 今日全達標！太強了！':'✅ 紀錄已儲存！');
+  renderToday(); renderLog(); renderMilestones();
+}
+
+// ============================================================
+// LOG
+// ============================================================
+function renderLog() {
+  const list=document.getElementById('logList');
+  if(!state.logs.length){ list.innerHTML='<div style="text-align:center;padding:50px 0;color:var(--text3);font-size:13px;">還沒有紀錄<br><span style="font-size:11px;margin-top:4px;display:block;">儲存今日打卡後就會出現</span></div>'; return; }
+  list.innerHTML='';
+  [...state.logs].reverse().forEach(l=>{
+    const el=document.createElement('div'); el.className='log-item';
+    const b=[];
+    if(l.hours>0) b.push(`<span class="lb lb-study">${l.hours}hr</span>`);
+    if(l.examCount>0) b.push(`<span class="lb lb-exam">考古題×${l.examCount}</span>`);
+    if(l.sport) b.push(`<span class="lb lb-sport">運動</span>`);
+    if(l.class) b.push(`<span class="lb lb-class">上課</span>`);
+    if(l.microDone>0) b.push(`<span class="lb lb-study">碎片×${l.microDone}</span>`);
+    el.innerHTML=`<div class="log-date">${l.date}</div><div class="log-badges">${b.join('')}</div>`;
+    list.appendChild(el);
+  });
+}
+
+// ============================================================
+// MILESTONES
+// ============================================================
+function renderMilestones() {
+  const list=document.getElementById('msList'); list.innerHTML='';
+  const tH=state.logs.reduce((s,l)=>s+(l.hours||0),0);
+  const tE=state.logs.reduce((s,l)=>s+(l.examCount||0),0);
+  const sp=state.logs.filter(l=>l.sport).length;
+  const dl=getDaysLeft();
+  MILESTONES.forEach(m=>{
+    let ok=false,prog=0,mx=1;
+    if(m.streakNeeded){ok=state.bestStreak>=m.streakNeeded;prog=state.bestStreak;mx=m.streakNeeded;}
+    if(m.hoursNeeded){ok=tH>=m.hoursNeeded;prog=tH;mx=m.hoursNeeded;}
+    if(m.examTotalNeeded){ok=tE>=m.examTotalNeeded;prog=tE;mx=m.examTotalNeeded;}
+    if(m.sportDaysNeeded){ok=sp>=m.sportDaysNeeded;prog=sp;mx=m.sportDaysNeeded;}
+    if(m.daysNeeded!==undefined) ok=dl<=m.daysNeeded;
+    const pct=Math.min(100,Math.round((prog/mx)*100));
+    const el=document.createElement('div'); el.className='ms-item '+(ok?'unlocked':'locked');
+    el.innerHTML=`<div class="ms-icon">${m.icon}</div><div class="ms-info"><div class="ms-name">${m.name}</div><div class="ms-cond">${m.cond}</div>${!ok&&m.daysNeeded===undefined?`<div class="ms-prog"><div class="ms-prog-fill" style="width:${pct}%"></div></div>`:''}</div><div class="ms-badge ${ok?'mb-done':'mb-lock'}">${ok?'✓ 解鎖':'🔒'}</div>`;
+    list.appendChild(el);
+  });
+}
+
+// ============================================================
+// SCHEDULE
+// ============================================================
+let currentSched = 'weekday';
+function setSched(m) {
+  currentSched=m;
+  document.getElementById('st-weekday').classList.toggle('active',m==='weekday');
+  document.getElementById('st-weekend').classList.toggle('active',m==='weekend');
+  document.getElementById('sched-title').textContent=m==='weekday'?'🕒 平日時程表 (工作3h＋讀書8h＋運動)':'🌟 假日時程表 (讀書9h＋)';
+  renderSched();
+}
+function renderSched() {
+  const data=currentSched==='weekday'?WEEKDAY_SCHED:WEEKEND_SCHED;
+  const table=document.getElementById('schedTable');
+  table.innerHTML=`<tr><th>時段</th><th>活動內容</th><th>備註</th></tr>`;
+  data.forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${r.time}</td><td>${r.act}${r.pomo?`<br><span class="pomo-badge">🍅${r.pomo}</span>`:''}</td><td style="font-size:10px;color:var(--text3);white-space:nowrap;">${r.note}</td>`;
+    table.appendChild(tr);
+  });
+}
+
+// ============================================================
+// PASS QUALITIES
+// ============================================================
+function renderPassQ() {
+  const list=document.getElementById('passqList'); list.innerHTML='';
+  PASS_QUALITIES.forEach((q,i)=>{
+    const el=document.createElement('div'); el.className='passq-item'+(state.passqDone[i]?' checked':'');
+    el.onclick=()=>{ state.passqDone[i]=!state.passqDone[i]; save(); renderPassQ(); };
+    el.innerHTML=`<div class="pq-check">${state.passqDone[i]?'✓':''}</div><div class="pq-body"><div class="pq-title">${q.title}</div><div class="pq-sub">${q.sub}</div></div>`;
+    list.appendChild(el);
+  });
+}
+
+// ============================================================
+// STRATEGY
+// ============================================================
+function renderStrategy() {
+  // subjects
+  const sl=document.getElementById('subjList'); sl.innerHTML='';
+  SUBJECTS.forEach(s=>{
+    const row=document.createElement('div'); row.className='subj-row';
+    row.innerHTML=`<div class="subj-hd" onclick="this.parentElement.classList.toggle('open')"><div class="s-dot" style="background:${s.dot}"></div><div class="s-name">${s.name}</div><div class="s-hint">${s.hint}</div><div class="s-chev">▶</div></div><div class="subj-body">${s.phases.map(p=>`<div class="ph-item"><span class="ph-tag ${p.cls}">${p.tag}</span><span class="ph-desc">${p.text}</span></div>`).join('')}</div>`;
+    sl.appendChild(row);
+  });
+  // tips
+  const tl=document.getElementById('tipList'); tl.innerHTML='';
+  TIPS.forEach((t,i)=>{
+    const el=document.createElement('div'); el.className='tip-item';
+    el.innerHTML=`<div class="tip-n">${i+1}</div><div class="tip-t">${t}</div>`;
+    tl.appendChild(el);
+  });
+}
+
+// ============================================================
+// NOTIFY
+// ============================================================
+async function initNotify() {
+  const b=document.getElementById('notifyBanner');
+  if(!('Notification' in window)){b.style.display='none';return;}
+  if(Notification.permission==='granted'){notifyGranted=true;showGrantedUI();scheduleCheck();}
+  else if(Notification.permission!=='denied'){b.style.display='flex';}
+}
+async function requestNotify() {
+  const p=await Notification.requestPermission();
+  if(p==='granted'){notifyGranted=true;showGrantedUI();scheduleCheck();showToast('🔔 通知已開啟！');}
+  else showToast('請在瀏覽器設定允許通知');
+}
+function showGrantedUI() {
+  const b=document.getElementById('notifyBanner'); b.style.background='var(--green-dim)'; b.style.borderColor='#1a5030';
+  document.getElementById('nb-title').textContent='每日提醒已開啟 ✓'; document.getElementById('nb-title').style.color='var(--green)';
+  document.getElementById('nb-sub').textContent='08:00 / 17:35 / 21:00 / 23:00 自動提醒';
+  const btn=document.getElementById('nb-btn'); btn.textContent='✓'; btn.disabled=true; btn.style.background='var(--green)';
+}
+function scheduleCheck() { setInterval(checkNow, 1800000); }
+function checkNow() {
+  if(!notifyGranted) return;
+  const h=new Date().getHours(), saved=state.lastSavedDate===todayKey(), d=getDaysLeft();
+  if(h===8&&!saved) notify('📖 早安！備考 Day '+(TOTAL_DAYS-d),`目標：讀書${STUDY_GOAL}小時＋考古題${EXAM_GOAL}題。加油！`);
+  if(h===17) notify('⏰ 17:35 鬧鐘提醒','立刻合上書本，換裝出門，通勤好好放空。');
+  if(h===21&&!saved){ const g=GUILT[seeded(todayKey(),GUILT.length)]; notify(g.e+' '+g.t, g.m.replace('{d}',d)); }
+  if(h===23&&!saved) notify('😰 快來不及了！','今天還有幾分鐘，趕快打卡！');
+}
+function notify(title,body){ try{ new Notification(title,{body,icon:'./icon.svg'}); }catch(e){} }
+
+// ============================================================
+// SERVICE WORKER
+// ============================================================
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(e=>console.log('SW:', e));
+}
+
+// ============================================================
+// INIT
+// ============================================================
+load();
+updateCountdown();
+renderToday();
+renderLog();
+renderMilestones();
+renderStrategy();
+renderSched();
+renderPassQ();
+initNotify();
+renderPomo();
+setInterval(updateCountdown, 60000);
+setInterval(()=>{ if(!pomoRunning) renderStatus(); }, 300000);
+</script>
+</body>
+</html>
